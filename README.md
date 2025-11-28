@@ -101,13 +101,13 @@ htmldocs also uses the [Paged.js library](https://pagedjs.org/) under the hood. 
 
 ## Publishing
 
-This package uses a custom npm scope (`@dportillo-ixs`). To publish it publicly without requiring a paid npm plan, use:
+This package is named `htmldocs-v2` to avoid conflicts with the original `htmldocs` package on npm. To publish it publicly, use:
 
 ```sh
 npm publish --access public
 ```
 
-Or ensure that your `package.json` contains the following configuration (already included):
+The `package.json` already includes the following configuration to enable public access:
 
 ```json
 "publishConfig": {
