@@ -1,5 +1,12 @@
 # @htmldocs/examples
 
+## 0.0.44
+
+### Patch Changes
+
+- @htmldocs/react@0.2.31
+- @htmldocs/render@0.2.31
+
 ## 0.0.43
 
 ### Patch Changes
