@@ -27,7 +27,7 @@
     "report-generator",
     "contract-generator"
   ],
-  "version": "0.2.30",
+  "version": "0.2.31",
   "homepage": "https://github.com/dportillo-ixs/htmldocs",
   "repository": {
     "type": "git",
