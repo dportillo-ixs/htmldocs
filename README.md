@@ -99,6 +99,22 @@ htmldocs also uses the [Paged.js library](https://pagedjs.org/) under the hood. 
 |--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
 | Next.js                                                                                                  | TypeScript                                                                                            | Turborepo                                                                                         | pnpm                                                                             |
 
+## Publishing
+
+This package uses a custom npm scope (`@dportillo-ixs`). To publish it publicly without requiring a paid npm plan, use:
+
+```sh
+npm publish --access public
+```
+
+Or ensure that your `package.json` contains the following configuration (already included):
+
+```json
+"publishConfig": {
+  "access": "public"
+}
+```
+
 ## License
 
 MIT License
