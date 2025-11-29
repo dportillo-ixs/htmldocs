@@ -1,5 +1,21 @@
 # htmldocs
 
+## 0.4.0
+
+### Minor Changes
+
+- 165e135: Release htmldocs-v2 0.3.0
+
+  - Renamed package from `htmldocs` to `htmldocs-v2`
+  - Updated CLI binary from `htmldocs` to `htmldocs-v2`
+  - Made `@htmldocs/render` and `@htmldocs/react` public packages
+  - Updated all workspace references
+
+### Patch Changes
+
+- Updated dependencies [165e135]
+  - @htmldocs/render@0.4.0
+
 ## 0.2.31
 
 ### Patch Changes
