@@ -27,11 +27,11 @@
     "report-generator",
     "contract-generator"
   ],
-  "version": "0.4.0",
-  "homepage": "https://github.com/dportillo-ixs/htmldocs",
+  "version": "0.3.0",
+  "homepage": "https://htmldocs.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dportillo-ixs/htmldocs"
+    "url": "https://github.com/htmldocs-js/htmldocs"
   },
   "bin": {
     "htmldocs-v2": "./dist/cli/index.mjs"
@@ -120,8 +120,5 @@
     "@types/react-dom": "^18.2.19",
     "tsup": "^8.0.2",
     "typescript": "^5"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }

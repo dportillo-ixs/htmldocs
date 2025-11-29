@@ -1,7 +1,7 @@
 {
   "name": "@htmldocs/react",
-  "version": "0.4.0",
-  "private": false,
+  "version": "0.3.0",
+  "private": true,
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -40,8 +40,5 @@
   },
   "dependencies": {
     "clsx": "^2.1.1"
-  },
-  "publishConfig": {
-    "access": "public"
   }
 }
