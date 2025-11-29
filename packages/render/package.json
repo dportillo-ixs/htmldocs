@@ -1,7 +1,7 @@
 {
   "name": "@htmldocs/render",
   "version": "0.2.30",
-  "private": true,
+  "private": false,
   "main": "./dist/index.js",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",

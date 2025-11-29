@@ -36,6 +36,9 @@ importers:
 
   apps/examples:
     dependencies:
+      '@dportillo-ixs/htmldocs':
+        specifier: workspace:*
+        version: link:../../packages/htmldocs
       '@formatjs/intl':
         specifier: ^2.10.4
         version: 2.10.15(typescript@5.7.3)
@@ -51,9 +54,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      htmldocs:
-        specifier: workspace:*
-        version: link:../../packages/htmldocs
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -335,6 +335,9 @@ importers:
 
   packages/htmldocs/public/template:
     dependencies:
+      '@dportillo-ixs/htmldocs':
+        specifier: workspace:0.2.30
+        version: link:../..
       '@formatjs/intl':
         specifier: ^2.10.4
         version: 2.10.15(typescript@5.7.3)
@@ -350,9 +353,6 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      htmldocs:
-        specifier: workspace:0.2.30
-        version: link:../..
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
