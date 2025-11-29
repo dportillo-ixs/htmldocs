@@ -51,7 +51,7 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      htmldocs:
+      htmldocs-v2:
         specifier: workspace:*
         version: link:../../packages/htmldocs
       markdown-it:
@@ -350,7 +350,7 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
-      htmldocs:
+      htmldocs-v2:
         specifier: workspace:0.2.30
         version: link:../..
       markdown-it:
