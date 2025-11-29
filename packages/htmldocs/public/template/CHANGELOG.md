@@ -1,5 +1,14 @@
 # htmldocs-starter
 
+## 0.3.0
+
+### Patch Changes
+
+- Updated dependencies [fd38cab]
+  - htmldocs-v2@0.3.0
+  - @htmldocs/render@0.3.0
+  - @htmldocs/react@0.3.0
+
 ## 0.2.30
 
 ### Patch Changes

@@ -1,5 +1,14 @@
 # @htmldocs/examples
 
+## 0.0.44
+
+### Patch Changes
+
+- Updated dependencies [fd38cab]
+  - htmldocs-v2@0.3.0
+  - @htmldocs/render@0.3.0
+  - @htmldocs/react@0.3.0
+
 ## 0.0.43
 
 ### Patch Changes
