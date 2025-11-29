@@ -27,14 +27,14 @@
     "report-generator",
     "contract-generator"
   ],
-  "version": "0.2.31",
+  "version": "0.3.0",
   "homepage": "https://github.com/dportillo-ixs/htmldocs",
   "repository": {
     "type": "git",
     "url": "https://github.com/dportillo-ixs/htmldocs"
   },
   "bin": {
-    "htmldocs": "./dist/cli/index.mjs"
+    "htmldocs-v2": "./dist/cli/index.mjs"
   },
   "scripts": {
     "init": "npx playwright install",
