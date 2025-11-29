@@ -1,5 +1,5 @@
 {
-  "name": "@dportillo-ixs/htmldocs",
+  "name": "htmldocs-v2",
   "keywords": [
     "pdf",
     "document",
@@ -34,7 +34,7 @@
     "url": "https://github.com/htmldocs-js/htmldocs"
   },
   "bin": {
-    "htmldocs": "./dist/cli/index.mjs"
+    "htmldocs-v2": "./dist/cli/index.mjs"
   },
   "scripts": {
     "init": "npx playwright install",
