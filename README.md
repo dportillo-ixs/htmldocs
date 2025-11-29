@@ -99,22 +99,6 @@ htmldocs also uses the [Paged.js library](https://pagedjs.org/) under the hood. 
 |--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------|
 | Next.js                                                                                                  | TypeScript                                                                                            | Turborepo                                                                                         | pnpm                                                                             |
 
-## Publishing
-
-This package is named `htmldocs-v2` to avoid conflicts with the original `htmldocs` package on npm. To publish it publicly, use:
-
-```sh
-npm publish --access public
-```
-
-The `package.json` already includes the following configuration to enable public access:
-
-```json
-"publishConfig": {
-  "access": "public"
-}
-```
-
 ## License
 
 MIT License

@@ -1,27 +1,21 @@
 # htmldocs
 
-## 0.4.0
+## 0.3.0
 
 ### Minor Changes
 
-- 165e135: Release htmldocs-v2 0.3.0
+- fd38cab: Primera publicación de htmldocs-v2. Cambio de nombre de htmldocs a htmldocs-v2 para publicar una nueva versión del paquete con mejoras y correcciones.
 
-  - Renamed package from `htmldocs` to `htmldocs-v2`
-  - Updated CLI binary from `htmldocs` to `htmldocs-v2`
-  - Made `@htmldocs/render` and `@htmldocs/react` public packages
-  - Updated all workspace references
+  Paquetes incluidos:
 
-### Patch Changes
-
-- Updated dependencies [165e135]
-  - @htmldocs/render@0.4.0
-
-## 0.2.31
+  - htmldocs-v2: Paquete principal con CLI
+  - @htmldocs/render: Paquete de renderizado de documentos
+  - @htmldocs/react: Componentes de React para htmldocs
 
 ### Patch Changes
 
-- 20351dd: Updated the starter template (used by the init command) so that all dependency and script references use the 'htmldocs-v2' package instead of 'htmldocs'. The generated starter project now correctly depends on htmldocs-v2.
-  - @htmldocs/render@0.2.31
+- Updated dependencies [fd38cab]
+  - @htmldocs/render@0.3.0
 
 ## 0.2.30
 
