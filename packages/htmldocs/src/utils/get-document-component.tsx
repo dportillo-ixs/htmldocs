@@ -18,6 +18,7 @@ import { RawSourceMap } from "source-map-js";
 import logger from "~/lib/logger";
 
 // Build cache to avoid rebuilding unchanged files
+const MAX_CACHE_SIZE = 50;
 const buildCache = new Map<string, {
   documentComponent: any;
   documentCss: string | undefined;
@@ -40,9 +41,11 @@ export const getDocumentComponent = async (
   const startTime = performance.now();
   
   // Check cache based on file content hash
+  let fileContent: string | undefined;
+  let hash: string | undefined;
   try {
-    const fileContent = await fs.promises.readFile(documentPath, 'utf-8');
-    const hash = crypto.createHash('md5').update(fileContent).digest('hex');
+    fileContent = await fs.promises.readFile(documentPath, 'utf-8');
+    hash = crypto.createHash('md5').update(fileContent).digest('hex');
     
     if (buildCache.has(hash)) {
       logger.debug(`[getDocumentComponent] Using cached build for ${documentPath}`);
@@ -160,23 +163,18 @@ export const getDocumentComponent = async (
       sourceMapToOriginalFile: sourceMapToDocument,
     };
     
-    // Cache the successful result
-    try {
-      const fileContent = await fs.promises.readFile(documentPath, 'utf-8');
-      const hash = crypto.createHash('md5').update(fileContent).digest('hex');
+    // Cache the successful result using the hash computed earlier
+    if (hash) {
       buildCache.set(hash, result);
       
       // Limit cache size to prevent memory leaks
-      if (buildCache.size > 50) {
+      if (buildCache.size > MAX_CACHE_SIZE) {
         const firstKey = buildCache.keys().next().value;
         if (firstKey) {
           buildCache.delete(firstKey);
         }
       }
       logger.debug(`[getDocumentComponent] Result cached with hash ${hash}`);
-    } catch (cacheError) {
-      // If caching fails, still return the result
-      logger.debug(`[getDocumentComponent] Failed to cache result:`, cacheError);
     }
 
     return result;
