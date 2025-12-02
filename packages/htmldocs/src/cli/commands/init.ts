@@ -6,7 +6,6 @@ import { exec } from "child_process";
 import chalk from "chalk";
 import logger from "~/lib/logger";
 import { cliPackageLocation } from "../utils";
-import { VERSION } from "~/lib/version";
 
 export const init = async (projectName: string) => {
   logger.debug("CLI package location", process.env.NEXT_PUBLIC_CLI_PACKAGE_LOCATION);
@@ -38,13 +37,7 @@ export const init = async (projectName: string) => {
   const templatePackageJson = JSON.parse(fse.readFileSync(templatePackageJsonPath, "utf8"));
 
   for (const key in templatePackageJson.dependencies) {
-    const dep = templatePackageJson.dependencies[key];
-    if (dep === "workspace:*") {
-      // Transform workspace:* to ^CURRENT_VERSION for htmldocs packages
-      templatePackageJson.dependencies[key] = `^${VERSION}`;
-    } else {
-      templatePackageJson.dependencies[key] = dep.replace("workspace:", "");
-    }
+    templatePackageJson.dependencies[key] = templatePackageJson.dependencies[key].replace("workspace:", "");
   }
 
   fse.writeFileSync(templatePackageJsonPath, JSON.stringify(templatePackageJson, null, 2), "utf8");
