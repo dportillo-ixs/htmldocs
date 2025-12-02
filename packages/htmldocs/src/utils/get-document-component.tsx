@@ -31,12 +31,13 @@ const MAX_CSS_CACHE_SIZE = 50;
 const cssCache = new Map<string, string>();
 
 // Extract Tailwind classes from file content
+// Note: Only extracts from className (React/JSX standard), not class (HTML)
 const extractTailwindClasses = (content: string): string[] => {
   const classPattern = /className=["']([^"']+)["']/g;
   const classes: Set<string> = new Set();
   
-  let match;
-  while ((match = classPattern.exec(content)) !== null) {
+  // Use matchAll for cleaner iteration
+  for (const match of content.matchAll(classPattern)) {
     const classNames = match[1].split(/\s+/);
     classNames.forEach(cls => {
       if (cls.trim()) classes.add(cls.trim());
@@ -47,10 +48,15 @@ const extractTailwindClasses = (content: string): string[] => {
 };
 
 // Generate hash from classes
+// Note: Using MD5 for performance - this is a cache key, not for security
 const generateCssHash = (classes: string[]): string => {
   const classesString = classes.join(' ');
   return crypto.createHash('md5').update(classesString).digest('hex');
 };
+
+// Cache PostCSS plugins to avoid repeated module resolution
+const tailwindPlugin = require("tailwindcss");
+const autoprefixerPlugin = require("autoprefixer");
 
 export const getDocumentComponent = async (
   documentPath: string
@@ -147,7 +153,7 @@ export const getDocumentComponent = async (
           ? [] 
           : [postCssPlugin({
               postcss: {
-                plugins: [require("tailwindcss"), require("autoprefixer")],
+                plugins: [tailwindPlugin, autoprefixerPlugin],
               },
             })]
         ),
