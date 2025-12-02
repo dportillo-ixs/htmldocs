@@ -1,4 +1,4 @@
-import { Document, Head, Page, Spacer } from "@htmldocs/react";
+import { Document, Head, Page, Spacer } from "htmldocs-v2-react";
 import { FaPhone, FaEnvelope, FaGlobe } from "react-icons/fa";
 import "~/index.css";
 

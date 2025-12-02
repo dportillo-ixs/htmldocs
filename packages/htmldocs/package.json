@@ -53,7 +53,7 @@
     "@babel/core": "^7.24.6",
     "@babel/parser": "^7.24.5",
     "@babel/preset-typescript": "^7.24.6",
-    "@htmldocs/render": "workspace:*",
+    "htmldocs-v2-render": "workspace:*",
     "@next/bundle-analyzer": "^15.1.6",
     "@phosphor-icons/react": "^2.1.5",
     "@radix-ui/react-collapsible": "^1.0.3",
