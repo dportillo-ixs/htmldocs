@@ -2,6 +2,7 @@
 
 import React from 'react';
 import fs from 'node:fs';
+import crypto from 'node:crypto';
 import { getDocumentComponent } from '../../utils/get-document-component';
 import { ErrorObject, improveErrorWithSourceMap } from 'htmldocs-v2-render';
 import logger from '../lib/logger';
@@ -26,6 +27,31 @@ export type DocumentRenderingResult =
       error: ErrorObject;
     };
 
+// Rendering cache to avoid re-rendering identical components
+const MAX_RENDER_CACHE_SIZE = 100;
+const renderCache = new Map<string, RenderedDocumentMetadata>();
+
+const generateRenderCacheKey = (
+  documentPath: string,
+  fileHash: string,
+  props: Record<string, any>,
+  cssHash: string
+): string => {
+  const propsJson = JSON.stringify(props, Object.keys(props).sort());
+  const propsHash = crypto.createHash('md5').update(propsJson).digest('hex');
+  return `${documentPath}:${fileHash}:${propsHash}:${cssHash}`;
+};
+
+const evictOldestCacheEntry = () => {
+  if (renderCache.size >= MAX_RENDER_CACHE_SIZE) {
+    const firstKey = renderCache.keys().next().value;
+    if (firstKey) {
+      renderCache.delete(firstKey);
+      logger.debug(`[render] Evicted cache entry: ${firstKey}`);
+    }
+  }
+};
+
 export const renderDocumentByPath = async (
   documentPath: string,
   props: Record<string, any> = {}
@@ -48,9 +74,28 @@ export const renderDocumentByPath = async (
     documentCss,
     renderAsync,
     sourceMapToOriginalFile,
+    fileHash,
   } = result;
 
   const renderProps = Object.keys(props).length !== 0 ? props : Document.PreviewProps || {};
+  
+  // Generate cache key
+  const cssHash = documentCss 
+    ? crypto.createHash('md5').update(documentCss).digest('hex')
+    : 'no-css';
+  const cacheKey = generateRenderCacheKey(documentPath, fileHash, renderProps, cssHash);
+  
+  // Check render cache
+  if (renderCache.has(cacheKey)) {
+    logger.debug(`[render] Using cached HTML for ${documentPath}`);
+    const cachedResult = renderCache.get(cacheKey)!;
+    const totalTime = performance.now() - startTime;
+    const filename = path.basename(documentPath);
+    const formattedTime = chalk.green(`${totalTime.toFixed(2)}ms`);
+    console.log(`${chalk.green('✔')} Document ${chalk.cyan(filename)} rendered in ${formattedTime} ${chalk.gray('(cached)')}`);
+    return cachedResult;
+  }
+  
   const DocumentComponent = Document as React.FC;
   
   try {
@@ -67,14 +112,8 @@ export const renderDocumentByPath = async (
     logger.debug(`[render] File read in ${fileReadTime.toFixed(2)}ms`);
 
     const totalTime = performance.now() - startTime;
-    logger.debug(`[render] Completed in ${totalTime.toFixed(2)}ms`);
-    const filename = path.basename(documentPath);
-    const formattedTime = totalTime >= 1000 
-      ? chalk.yellow(`${(totalTime / 1000).toFixed(2)}s`)
-      : chalk.yellow(`${totalTime.toFixed(2)}ms`);
-    console.log(`${chalk.green('✔')} Document ${chalk.cyan(filename)} rendered in ${formattedTime}`);
-
-    return {
+    
+    const renderedResult: RenderedDocumentMetadata = {
       markup,
       reactMarkup,
       previewProps: Document.PreviewProps,
@@ -85,6 +124,20 @@ export const renderDocumentByPath = async (
         fileRead: fileReadTime
       }
     };
+    
+    // Store in cache
+    evictOldestCacheEntry();
+    renderCache.set(cacheKey, renderedResult);
+    logger.debug(`[render] Cached render result with key: ${cacheKey}`);
+    
+    logger.debug(`[render] Completed in ${totalTime.toFixed(2)}ms`);
+    const filename = path.basename(documentPath);
+    const formattedTime = totalTime >= 1000 
+      ? chalk.yellow(`${(totalTime / 1000).toFixed(2)}s`)
+      : chalk.yellow(`${totalTime.toFixed(2)}ms`);
+    console.log(`${chalk.green('✔')} Document ${chalk.cyan(filename)} rendered in ${formattedTime}`);
+
+    return renderedResult;
   } catch (exception) {
     const error = exception as Error;
     const filename = path.basename(documentPath);
