@@ -49,7 +49,7 @@ export const setupHotreloading = async (
 
     changes = [];
 
-  }, 150);
+  }, 500);
 
   const absolutePathToDocumentsDirectory = path.resolve(
     process.cwd(),
