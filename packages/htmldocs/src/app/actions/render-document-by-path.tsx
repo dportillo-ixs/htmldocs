@@ -37,11 +37,19 @@ const generateRenderCacheKey = (
   props: Record<string, any>,
   cssHash: string
 ): string => {
-  const propsJson = JSON.stringify(props, Object.keys(props).sort());
-  const propsHash = crypto.createHash('md5').update(propsJson).digest('hex');
-  return `${documentPath}:${fileHash}:${propsHash}:${cssHash}`;
+  try {
+    const propsJson = JSON.stringify(props, Object.keys(props).sort());
+    const propsHash = crypto.createHash('md5').update(propsJson).digest('hex');
+    return `${documentPath}:${fileHash}:${propsHash}:${cssHash}`;
+  } catch (error) {
+    // If props can't be serialized (e.g., circular refs, functions),
+    // use a fallback to avoid cache poisoning
+    logger.debug(`[render] Failed to serialize props for cache key: ${error}`);
+    return `${documentPath}:${fileHash}:no-props:${cssHash}`;
+  }
 };
 
+// Evict oldest cache entry (FIFO strategy)
 const evictOldestCacheEntry = () => {
   if (renderCache.size >= MAX_RENDER_CACHE_SIZE) {
     const firstKey = renderCache.keys().next().value;
@@ -91,7 +99,9 @@ export const renderDocumentByPath = async (
     const cachedResult = renderCache.get(cacheKey)!;
     const totalTime = performance.now() - startTime;
     const filename = path.basename(documentPath);
-    const formattedTime = chalk.green(`${totalTime.toFixed(2)}ms`);
+    const formattedTime = totalTime >= 1000 
+      ? chalk.yellow(`${(totalTime / 1000).toFixed(2)}s`)
+      : chalk.yellow(`${totalTime.toFixed(2)}ms`);
     console.log(`${chalk.green('✔')} Document ${chalk.cyan(filename)} rendered in ${formattedTime} ${chalk.gray('(cached)')}`);
     return cachedResult;
   }
