@@ -34,6 +34,7 @@ export const getDocumentComponent = async (
       documentCss: string | undefined;
       renderAsync: typeof renderAsync;
       sourceMapToOriginalFile: RawSourceMap;
+      fileHash: string;
     }
   | { error: ErrorObject }
 > => {
@@ -52,7 +53,10 @@ export const getDocumentComponent = async (
       const cachedResult = buildCache.get(hash)!;
       const totalTime = performance.now() - startTime;
       logger.debug(`[getDocumentComponent] Cache hit in ${totalTime.toFixed(2)}ms`);
-      return cachedResult;
+      return {
+        ...cachedResult,
+        fileHash: hash,
+      };
     }
   } catch (cacheError) {
     // If cache check fails, continue with normal build
@@ -156,16 +160,21 @@ export const getDocumentComponent = async (
     const totalTime = performance.now() - startTime;
     logger.debug(`[getDocumentComponent] Total processing completed in ${totalTime.toFixed(2)}ms`);
 
-    const result = {
+    const cacheableResult = {
       documentComponent: executionResult.DocumentComponent,
       documentCss,
       renderAsync: executionResult.renderAsync,
       sourceMapToOriginalFile: sourceMapToDocument,
     };
     
+    const result = {
+      ...cacheableResult,
+      fileHash: hash!,
+    };
+    
     // Cache the successful result using the hash computed earlier
     if (hash) {
-      buildCache.set(hash, result);
+      buildCache.set(hash, cacheableResult);
       
       // Limit cache size to prevent memory leaks
       if (buildCache.size > MAX_CACHE_SIZE) {
