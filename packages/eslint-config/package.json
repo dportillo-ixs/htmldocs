@@ -1,11 +1,24 @@
 {
-  "name": "@htmldocs/eslint-config",
+  "name": "htmldocs-v2-eslint-config",
   "version": "0.0.1",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "library.js",
   "files": [
     "library.js",
     "next.js",
     "react-internal.js"
   ],
+  "exports": {
+    "./library.js": "./library.js",
+    "./library": "./library.js",
+    "./next.js": "./next.js",
+    "./next": "./next.js",
+    "./react-internal.js": "./react-internal.js",
+    "./react-internal": "./react-internal.js"
+  },
   "devDependencies": {
     "@vercel/style-guide": "^5.2.0",
     "eslint-config-turbo": "^1.12.4",

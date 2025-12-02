@@ -136,7 +136,7 @@ export const renderAsync = async (
           ${documentCss ? `<style>${documentCss}</style>` : ""}
           <style>${cssText}</style>
           ${extractedHeadContents}
-          <script src="https://unpkg.com/@htmldocs/render@0.1.7/dist/paged.polyfill.js"></script>
+          <script src="https://unpkg.com/htmldocs-v2-render@0.3.0/dist/paged.polyfill.js"></script>
           <script type="text/javascript">
             // Hide content initially
             // document.querySelector("html").style.visibility = "hidden";

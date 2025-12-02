@@ -12,18 +12,18 @@ importers:
         specifier: ^2.27.9
         version: 2.27.11
     devDependencies:
-      '@htmldocs/eslint-config':
-        specifier: workspace:*
-        version: link:packages/eslint-config
-      '@htmldocs/typescript-config':
-        specifier: workspace:*
-        version: link:packages/typescript-config
       '@vitest/coverage-v8':
         specifier: ^1.3.1
         version: 1.6.1(vitest@1.6.1)
       happy-dom:
         specifier: ^13.3.8
         version: 13.10.1
+      htmldocs-v2-eslint-config:
+        specifier: workspace:*
+        version: link:packages/eslint-config
+      htmldocs-v2-typescript-config:
+        specifier: workspace:*
+        version: link:packages/typescript-config
       prettier:
         specifier: ^3.2.5
         version: 3.4.2
@@ -39,12 +39,6 @@ importers:
       '@formatjs/intl':
         specifier: ^2.10.4
         version: 2.10.15(typescript@5.7.3)
-      '@htmldocs/react':
-        specifier: workspace:*
-        version: link:../../packages/react
-      '@htmldocs/render':
-        specifier: workspace:*
-        version: link:../../packages/render
       '@react-email/components':
         specifier: 0.0.18
         version: 0.0.18(@types/react@18.3.18)(react@18.3.1)
@@ -54,6 +48,12 @@ importers:
       htmldocs-v2:
         specifier: workspace:*
         version: link:../../packages/htmldocs
+      htmldocs-v2-react:
+        specifier: workspace:*
+        version: link:../../packages/react
+      htmldocs-v2-render:
+        specifier: workspace:*
+        version: link:../../packages/render
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -136,9 +136,6 @@ importers:
       '@babel/preset-typescript':
         specifier: ^7.24.6
         version: 7.26.0(@babel/core@7.26.0)
-      '@htmldocs/render':
-        specifier: workspace:*
-        version: link:../render
       '@next/bundle-analyzer':
         specifier: ^15.1.6
         version: 15.1.6
@@ -229,6 +226,9 @@ importers:
       fs-extra:
         specifier: ^11.2.0
         version: 11.3.0
+      htmldocs-v2-render:
+        specifier: workspace:*
+        version: link:../render
       inquirer:
         specifier: ^11.0.2
         version: 11.1.0
@@ -338,12 +338,6 @@ importers:
       '@formatjs/intl':
         specifier: ^2.10.4
         version: 2.10.15(typescript@5.7.3)
-      '@htmldocs/react':
-        specifier: workspace:0.3.0
-        version: link:../../../react
-      '@htmldocs/render':
-        specifier: workspace:0.3.0
-        version: link:../../../render
       '@react-email/components':
         specifier: 0.0.18
         version: 0.0.18(@types/react@18.3.18)(react@18.3.1)
@@ -353,6 +347,12 @@ importers:
       htmldocs-v2:
         specifier: workspace:0.3.0
         version: link:../..
+      htmldocs-v2-react:
+        specifier: workspace:0.3.0
+        version: link:../../../react
+      htmldocs-v2-render:
+        specifier: workspace:0.3.0
+        version: link:../../../render
       markdown-it:
         specifier: ^14.1.0
         version: 14.1.0
@@ -391,12 +391,6 @@ importers:
         specifier: ^18.2.0
         version: 18.3.1
     devDependencies:
-      '@htmldocs/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      '@htmldocs/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/eslint':
         specifier: ^8.56.5
         version: 8.56.12
@@ -412,6 +406,12 @@ importers:
       eslint:
         specifier: ^8.57.0
         version: 8.57.1
+      htmldocs-v2-eslint-config:
+        specifier: workspace:*
+        version: link:../eslint-config
+      htmldocs-v2-typescript-config:
+        specifier: workspace:*
+        version: link:../typescript-config
       tsup:
         specifier: ^8.0.2
         version: 8.3.5(@swc/core@1.10.7)(postcss@8.5.1)(typescript@5.7.3)
@@ -434,12 +434,6 @@ importers:
         specifier: ^0.1.10
         version: 0.1.10
     devDependencies:
-      '@htmldocs/eslint-config':
-        specifier: workspace:*
-        version: link:../eslint-config
-      '@htmldocs/typescript-config':
-        specifier: workspace:*
-        version: link:../typescript-config
       '@types/eslint':
         specifier: ^8.56.5
         version: 8.56.12
@@ -461,6 +455,12 @@ importers:
       eslint:
         specifier: ^8.57.0
         version: 8.57.1
+      htmldocs-v2-eslint-config:
+        specifier: workspace:*
+        version: link:../eslint-config
+      htmldocs-v2-typescript-config:
+        specifier: workspace:*
+        version: link:../typescript-config
       sass:
         specifier: ^1.77.4
         version: 1.83.4

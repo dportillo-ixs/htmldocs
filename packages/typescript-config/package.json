@@ -1,6 +1,7 @@
 {
-  "name": "@htmldocs/typescript-config",
+  "name": "htmldocs-v2-typescript-config",
   "version": "0.0.1",
+  "private": false,
   "license": "MIT",
   "publishConfig": {
     "access": "public"

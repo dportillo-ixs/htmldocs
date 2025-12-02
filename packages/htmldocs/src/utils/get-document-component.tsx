@@ -10,7 +10,7 @@ import {
   extractOutputFiles,
   improveErrorWithSourceMap,
   renderAsync,
-} from "@htmldocs/render";
+} from "htmldocs-v2-render";
 import { htmldocsPlugin } from "./htmldocs-esbuild-plugin";
 import postCssPlugin from "esbuild-style-plugin";
 import { RawSourceMap } from "source-map-js";

@@ -1,4 +1,4 @@
-import { Document, Footer } from "@htmldocs/react"
+import { Document, Footer } from "htmldocs-v2-react"
 import MarkdownIt from 'markdown-it'
 import fs from 'node:fs'
 import path from "path"

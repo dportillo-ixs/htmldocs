@@ -13,7 +13,7 @@ import {
   createFakeContext,
   executeBuiltCode,
   extractOutputFiles,
-} from "@htmldocs/render";
+} from "htmldocs-v2-render";
 import ora from "ora";
 import { closeOraOnSIGINT } from "../utils/close-ora-on-sigint";
 import logger from "~/lib/logger";
