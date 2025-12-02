@@ -1,5 +1,5 @@
 {
-    "extends": "@htmldocs/typescript-config/base.json",
+    "extends": "htmldocs-v2-typescript-config/base.json",
     "ts-node": {
       "compilerOptions": {
         "module": "commonjs"

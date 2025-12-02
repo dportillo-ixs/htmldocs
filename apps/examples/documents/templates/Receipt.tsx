@@ -1,4 +1,4 @@
-import { Document, Footer, Head, MarginBox, Page } from "@htmldocs/react"
+import { Document, Footer, Head, MarginBox, Page } from "htmldocs-v2-react"
 import "~/index.css"
 
 interface BillingAddress {

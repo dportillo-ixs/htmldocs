@@ -3,7 +3,7 @@
 import React from 'react';
 import fs from 'node:fs';
 import { getDocumentComponent } from '../../utils/get-document-component';
-import { ErrorObject, improveErrorWithSourceMap } from '@htmldocs/render';
+import { ErrorObject, improveErrorWithSourceMap } from 'htmldocs-v2-render';
 import logger from '../lib/logger';
 import chalk from 'chalk';
 import path from 'node:path';
