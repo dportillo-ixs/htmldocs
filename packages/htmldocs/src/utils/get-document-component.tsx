@@ -26,6 +26,30 @@ const buildCache = new Map<string, {
   sourceMapToOriginalFile: RawSourceMap;
 }>();
 
+// CSS cache to avoid re-processing Tailwind when classes haven't changed
+const MAX_CSS_CACHE_SIZE = 50;
+const cssCache = new Map<string, string>();
+
+// Extract Tailwind classes from file content
+const extractTailwindClasses = (content: string): string[] => {
+  const classPattern = /className=["']([^"']+)["']/g;
+  const classes: Set<string> = new Set();
+  
+  let match;
+  while ((match = classPattern.exec(content)) !== null) {
+    const classNames = match[1].split(/\s+/);
+    classNames.forEach(cls => classes.add(cls));
+  }
+  
+  return Array.from(classes).sort();
+};
+
+// Generate hash from Tailwind classes
+const generateCssHash = (classes: string[]): string => {
+  const classesString = classes.join(' ');
+  return crypto.createHash('md5').update(classesString).digest('hex');
+};
+
 export const getDocumentComponent = async (
   documentPath: string
 ): Promise<
@@ -63,6 +87,20 @@ export const getDocumentComponent = async (
     logger.debug(`[getDocumentComponent] Cache check failed, proceeding with build`);
   }
   
+  // Extract Tailwind classes and check CSS cache
+  let cachedCss: string | undefined;
+  let cssHash: string | undefined;
+  
+  if (fileContent) {
+    const tailwindClasses = extractTailwindClasses(fileContent);
+    cssHash = generateCssHash(tailwindClasses);
+    
+    if (cssCache.has(cssHash)) {
+      cachedCss = cssCache.get(cssHash);
+      logger.debug(`[getDocumentComponent] Using cached CSS for hash ${cssHash}`);
+    }
+  }
+  
   let outputFiles: OutputFile[];
   try {
     logger.debug('Starting esbuild');
@@ -80,11 +118,15 @@ export const getDocumentComponent = async (
       },
       plugins: [
         htmldocsPlugin([documentPath], false),
-        postCssPlugin({
-          postcss: {
-            plugins: [require("tailwindcss"), require("autoprefixer")],
-          },
-        }),
+        // Only run PostCSS if we don't have cached CSS
+        ...(cachedCss 
+          ? [] 
+          : [postCssPlugin({
+              postcss: {
+                plugins: [require("tailwindcss"), require("autoprefixer")],
+              },
+            })]
+        ),
       ],
       loader: {
         ".ts": "ts",
@@ -129,7 +171,30 @@ export const getDocumentComponent = async (
     logger.debug('Files extracted');
     
     const builtDocumentCode = bundledDocumentFile.text;
-    const documentCss = cssFile?.text;
+    
+    // Extract or use cached CSS
+    let documentCss: string | undefined;
+    
+    if (cachedCss) {
+      documentCss = cachedCss;
+      logger.debug('[getDocumentComponent] Using cached CSS');
+    } else {
+      documentCss = cssFile?.text;
+      
+      // Cache the newly generated CSS
+      if (documentCss && cssHash) {
+        cssCache.set(cssHash, documentCss);
+        
+        // Limit cache size
+        if (cssCache.size > MAX_CSS_CACHE_SIZE) {
+          const firstKey = cssCache.keys().next().value;
+          if (firstKey) {
+            cssCache.delete(firstKey);
+          }
+        }
+        logger.debug(`[getDocumentComponent] Cached CSS with hash ${cssHash}`);
+      }
+    }
     
     logger.debug('Creating context');
     const fakeContext = createFakeContext(documentPath);
