@@ -1,5 +1,13 @@
 # @htmldocs/react
 
+## 0.4.1
+
+### Patch Changes
+
+- e97ecd6: Synchronize all package versions
+
+  Ensures all three packages (htmldocs-v2, htmldocs-v2-react, htmldocs-v2-render) are published together with matching versions, fixing the npm dependency resolution error when users run `pnpx htmldocs-v2@latest init`.
+
 ## 0.4.0
 
 ### Minor Changes
