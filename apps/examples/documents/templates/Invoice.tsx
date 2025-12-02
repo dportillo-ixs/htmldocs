@@ -1,4 +1,4 @@
-import { Document, Head, Page, Spacer } from "@htmldocs/react";
+import { Document, Head, Page, Spacer } from "htmldocs-v2-react";
 import clsx from "clsx";
 import { createIntl, createIntlCache } from "@formatjs/intl";
 import "~/index.css";

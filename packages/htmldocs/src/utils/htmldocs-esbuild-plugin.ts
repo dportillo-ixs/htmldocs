@@ -58,14 +58,14 @@ export const htmldocsPlugin = (documentTemplates: string[], isBuild: boolean) =>
           resolveDir: args.resolveDir,
           namespace: args.namespace,
         };
-        let result = await b.resolve("@htmldocs/render", options);
+        let result = await b.resolve("htmldocs-v2-render", options);
         if (result.errors.length === 0) {
           return result;
         }
 
         if (result.errors.length > 0 && result.errors[0]) {
           result.errors[0].text =
-            "Failed trying to import `renderAsync` from `@htmldocs/render` to be able to render your document template.\n Maybe you don't have `@htmldocs/render` installed?";
+            "Failed trying to import `renderAsync` from `htmldocs-v2-render` to be able to render your document template.\n Maybe you don't have `htmldocs-v2-render` installed?";
         }
         return result;
       }

@@ -8,8 +8,8 @@
   },
   "dependencies": {
     "@formatjs/intl": "^2.10.4",
-    "@htmldocs/react": "workspace:0.3.0",
-    "@htmldocs/render": "workspace:0.3.0",
+    "htmldocs-v2-react": "workspace:0.3.0",
+    "htmldocs-v2-render": "workspace:0.3.0",
     "@react-email/components": "0.0.18",
     "clsx": "^2.1.1",
     "htmldocs-v2": "workspace:0.3.0",
