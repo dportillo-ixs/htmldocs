@@ -1,5 +1,19 @@
 # @htmldocs/react
 
+## 0.4.0
+
+### Minor Changes
+
+- e044272: Renamed packages from @htmldocs/_ scope to htmldocs-v2-_ prefix for independent npm publishing
+
+  All internal packages have been renamed to use the `htmldocs-v2-` prefix without a scope:
+
+  - `@htmldocs/render` → `htmldocs-v2-render`
+  - `@htmldocs/react` → `htmldocs-v2-react`
+  - Main package name remains `htmldocs-v2`
+
+  This change allows the packages to be published to npm independently without conflicts with the existing @htmldocs scope owned by another maintainer.
+
 ## 0.3.0
 
 ### Minor Changes

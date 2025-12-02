@@ -1,5 +1,38 @@
 # htmldocs
 
+## 0.4.1
+
+### Patch Changes
+
+- 6636a6b: Fix starter template to use workspace protocol and proper version transformation
+
+  The `init` command now correctly transforms `workspace:*` dependencies to proper semver ranges (e.g., `^0.4.1`) when users run `pnpx htmldocs-v2@latest init`. This fixes the issue where users would get hardcoded versions that don't exist on npm.
+
+  **Changes:**
+
+  - Template dependencies now use `workspace:*` instead of hardcoded versions
+  - init.ts properly converts `workspace:*` to `^VERSION` during project initialization
+  - Regenerated pnpm-lock.yaml to match package.json
+
+## 0.4.0
+
+### Minor Changes
+
+- e044272: Renamed packages from @htmldocs/_ scope to htmldocs-v2-_ prefix for independent npm publishing
+
+  All internal packages have been renamed to use the `htmldocs-v2-` prefix without a scope:
+
+  - `@htmldocs/render` → `htmldocs-v2-render`
+  - `@htmldocs/react` → `htmldocs-v2-react`
+  - Main package name remains `htmldocs-v2`
+
+  This change allows the packages to be published to npm independently without conflicts with the existing @htmldocs scope owned by another maintainer.
+
+### Patch Changes
+
+- Updated dependencies [e044272]
+  - htmldocs-v2-render@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes
