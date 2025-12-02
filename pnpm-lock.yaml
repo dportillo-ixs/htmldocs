@@ -345,13 +345,13 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       htmldocs-v2:
-        specifier: workspace:0.4.1
+        specifier: workspace:0.4.2
         version: link:../..
       htmldocs-v2-react:
-        specifier: workspace:0.4.0
+        specifier: workspace:0.4.1
         version: link:../../../react
       htmldocs-v2-render:
-        specifier: workspace:0.4.0
+        specifier: workspace:0.4.1
         version: link:../../../render
       markdown-it:
         specifier: ^14.1.0
