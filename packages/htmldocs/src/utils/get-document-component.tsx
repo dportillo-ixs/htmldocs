@@ -1,5 +1,6 @@
 import * as es from "esbuild";
 import fs from "node:fs";
+import crypto from "node:crypto";
 import { BuildFailure, type OutputFile } from "esbuild";
 
 import {
@@ -16,6 +17,14 @@ import postCssPlugin from "esbuild-style-plugin";
 import { RawSourceMap } from "source-map-js";
 import logger from "~/lib/logger";
 
+// Build cache to avoid rebuilding unchanged files
+const buildCache = new Map<string, {
+  documentComponent: any;
+  documentCss: string | undefined;
+  renderAsync: typeof renderAsync;
+  sourceMapToOriginalFile: RawSourceMap;
+}>();
+
 export const getDocumentComponent = async (
   documentPath: string
 ): Promise<
@@ -30,6 +39,23 @@ export const getDocumentComponent = async (
   logger.debug(`[getDocumentComponent] Starting build for: ${documentPath}`);
   const startTime = performance.now();
   
+  // Check cache based on file content hash
+  try {
+    const fileContent = await fs.promises.readFile(documentPath, 'utf-8');
+    const hash = crypto.createHash('md5').update(fileContent).digest('hex');
+    
+    if (buildCache.has(hash)) {
+      logger.debug(`[getDocumentComponent] Using cached build for ${documentPath}`);
+      const cachedResult = buildCache.get(hash)!;
+      const totalTime = performance.now() - startTime;
+      logger.debug(`[getDocumentComponent] Cache hit in ${totalTime.toFixed(2)}ms`);
+      return cachedResult;
+    }
+  } catch (cacheError) {
+    // If cache check fails, continue with normal build
+    logger.debug(`[getDocumentComponent] Cache check failed, proceeding with build`);
+  }
+  
   let outputFiles: OutputFile[];
   try {
     logger.debug('Starting esbuild');
@@ -38,7 +64,7 @@ export const getDocumentComponent = async (
       entryPoints: [documentPath],
       platform: "node",
       bundle: true,
-      minify: true,
+      minify: false,
       write: false,
       format: "cjs",
       jsx: "automatic",
@@ -127,12 +153,33 @@ export const getDocumentComponent = async (
     const totalTime = performance.now() - startTime;
     logger.debug(`[getDocumentComponent] Total processing completed in ${totalTime.toFixed(2)}ms`);
 
-    return {
+    const result = {
       documentComponent: executionResult.DocumentComponent,
       documentCss,
       renderAsync: executionResult.renderAsync,
       sourceMapToOriginalFile: sourceMapToDocument,
     };
+    
+    // Cache the successful result
+    try {
+      const fileContent = await fs.promises.readFile(documentPath, 'utf-8');
+      const hash = crypto.createHash('md5').update(fileContent).digest('hex');
+      buildCache.set(hash, result);
+      
+      // Limit cache size to prevent memory leaks
+      if (buildCache.size > 50) {
+        const firstKey = buildCache.keys().next().value;
+        if (firstKey) {
+          buildCache.delete(firstKey);
+        }
+      }
+      logger.debug(`[getDocumentComponent] Result cached with hash ${hash}`);
+    } catch (cacheError) {
+      // If caching fails, still return the result
+      logger.debug(`[getDocumentComponent] Failed to cache result:`, cacheError);
+    }
+
+    return result;
   } catch (error) {
     logger.error('[getDocumentComponent] Processing error:', error);
     return {
