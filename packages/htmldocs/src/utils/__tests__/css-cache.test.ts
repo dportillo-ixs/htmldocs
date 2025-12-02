@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import crypto from 'node:crypto';
 
 describe('CSS Caching Utilities', () => {
@@ -10,8 +10,8 @@ describe('CSS Caching Utilities', () => {
         
         let match;
         while ((match = classPattern.exec(content)) !== null) {
-          const classNames = match[1].split(/\s+/);
-          classNames.forEach(cls => classes.add(cls));
+          const classNames = match[1].split(/\s+/).filter(cls => cls.trim());
+          classNames.forEach(cls => classes.add(cls.trim()));
         }
         
         return Array.from(classes).sort();
@@ -30,8 +30,8 @@ describe('CSS Caching Utilities', () => {
         
         let match;
         while ((match = classPattern.exec(content)) !== null) {
-          const classNames = match[1].split(/\s+/);
-          classNames.forEach(cls => classes.add(cls));
+          const classNames = match[1].split(/\s+/).filter(cls => cls.trim());
+          classNames.forEach(cls => classes.add(cls.trim()));
         }
         
         return Array.from(classes).sort();
@@ -50,8 +50,8 @@ describe('CSS Caching Utilities', () => {
         
         let match;
         while ((match = classPattern.exec(content)) !== null) {
-          const classNames = match[1].split(/\s+/);
-          classNames.forEach(cls => classes.add(cls));
+          const classNames = match[1].split(/\s+/).filter(cls => cls.trim());
+          classNames.forEach(cls => classes.add(cls.trim()));
         }
         
         return Array.from(classes).sort();
@@ -75,8 +75,8 @@ describe('CSS Caching Utilities', () => {
         
         let match;
         while ((match = classPattern.exec(content)) !== null) {
-          const classNames = match[1].split(/\s+/);
-          classNames.forEach(cls => classes.add(cls));
+          const classNames = match[1].split(/\s+/).filter(cls => cls.trim());
+          classNames.forEach(cls => classes.add(cls.trim()));
         }
         
         return Array.from(classes).sort();
@@ -90,6 +90,26 @@ describe('CSS Caching Utilities', () => {
       const classes = extractTailwindClasses(content);
       
       expect(classes).toEqual(['p-4', 'text-lg']);
+    });
+
+    it('should filter out empty class names', () => {
+      const extractTailwindClasses = (content: string): string[] => {
+        const classPattern = /className=["']([^"']+)["']/g;
+        const classes: Set<string> = new Set();
+        
+        let match;
+        while ((match = classPattern.exec(content)) !== null) {
+          const classNames = match[1].split(/\s+/).filter(cls => cls.trim());
+          classNames.forEach(cls => classes.add(cls.trim()));
+        }
+        
+        return Array.from(classes).sort();
+      };
+
+      const content = '<div className="p-4  bg-blue-500   text-white">Test</div>';
+      const classes = extractTailwindClasses(content);
+      
+      expect(classes).toEqual(['bg-blue-500', 'p-4', 'text-white']);
     });
   });
 
@@ -159,8 +179,8 @@ describe('CSS Caching Utilities', () => {
       cssCache.set('hash3', 'css3');
       cssCache.set('hash4', 'css4');
       
-      // Limit cache size
-      if (cssCache.size > MAX_CSS_CACHE_SIZE) {
+      // Limit cache size - remove oldest entries if needed
+      while (cssCache.size > MAX_CSS_CACHE_SIZE) {
         const firstKey = cssCache.keys().next().value;
         if (firstKey) {
           cssCache.delete(firstKey);

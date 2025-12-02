@@ -37,8 +37,8 @@ const extractTailwindClasses = (content: string): string[] => {
   
   let match;
   while ((match = classPattern.exec(content)) !== null) {
-    const classNames = match[1].split(/\s+/);
-    classNames.forEach(cls => classes.add(cls));
+    const classNames = match[1].split(/\s+/).filter(cls => cls.trim());
+    classNames.forEach(cls => classes.add(cls.trim()));
   }
   
   return Array.from(classes).sort();
@@ -185,8 +185,8 @@ export const getDocumentComponent = async (
       if (documentCss && cssHash) {
         cssCache.set(cssHash, documentCss);
         
-        // Limit cache size
-        if (cssCache.size > MAX_CSS_CACHE_SIZE) {
+        // Limit cache size - remove oldest entries if needed
+        while (cssCache.size > MAX_CSS_CACHE_SIZE) {
           const firstKey = cssCache.keys().next().value;
           if (firstKey) {
             cssCache.delete(firstKey);
