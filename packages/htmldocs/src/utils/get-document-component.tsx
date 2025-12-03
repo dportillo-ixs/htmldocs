@@ -36,8 +36,8 @@ const extractTailwindClasses = (content: string): string[] => {
   const classPattern = /className=["']([^"']+)["']/g;
   const classes: Set<string> = new Set();
   
-  // Use matchAll for cleaner iteration
-  for (const match of content.matchAll(classPattern)) {
+  let match;
+  while ((match = classPattern.exec(content)) !== null) {
     const classNames = match[1].split(/\s+/);
     classNames.forEach(cls => {
       if (cls.trim()) classes.add(cls.trim());
