@@ -26,6 +26,38 @@ const buildCache = new Map<string, {
   sourceMapToOriginalFile: RawSourceMap;
 }>();
 
+// CSS cache to avoid regenerating CSS for unchanged Tailwind classes
+const MAX_CSS_CACHE_SIZE = 50;
+const cssCache = new Map<string, string>();
+
+// Extract Tailwind classes from file content
+// Note: Only extracts from className (React/JSX standard), not class (HTML)
+const extractTailwindClasses = (content: string): string[] => {
+  const classPattern = /className=["']([^"']+)["']/g;
+  const classes: Set<string> = new Set();
+  
+  // Use matchAll for cleaner iteration
+  for (const match of content.matchAll(classPattern)) {
+    const classNames = match[1].split(/\s+/);
+    classNames.forEach(cls => {
+      if (cls.trim()) classes.add(cls.trim());
+    });
+  }
+  
+  return Array.from(classes).sort();
+};
+
+// Generate hash from classes
+// Note: Using MD5 for performance - this is a cache key, not for security
+const generateCssHash = (classes: string[]): string => {
+  const classesString = classes.join(' ');
+  return crypto.createHash('md5').update(classesString).digest('hex');
+};
+
+// Cache PostCSS plugins to avoid repeated module resolution
+const tailwindPlugin = require("tailwindcss");
+const autoprefixerPlugin = require("autoprefixer");
+
 export const getDocumentComponent = async (
   documentPath: string
 ): Promise<
@@ -63,14 +95,50 @@ export const getDocumentComponent = async (
     logger.debug(`[getDocumentComponent] Cache check failed, proceeding with build`);
   }
   
+  // Check CSS cache based on Tailwind classes
+  let cachedCss: string | undefined;
+  let cssHash: string | undefined;
+  
+  if (fileContent) {
+    const tailwindClasses = extractTailwindClasses(fileContent);
+    cssHash = generateCssHash(tailwindClasses);
+    
+    if (cssCache.has(cssHash)) {
+      cachedCss = cssCache.get(cssHash);
+      logger.debug(`[CSS Cache] Hit for hash ${cssHash.substring(0, 8)} (${tailwindClasses.length} classes)`);
+    } else {
+      logger.debug(`[CSS Cache] Miss for hash ${cssHash.substring(0, 8)} (${tailwindClasses.length} classes)`);
+    }
+  }
+  
   let outputFiles: OutputFile[];
   try {
     logger.debug('Starting esbuild');
+    logger.debug('[External] Skipping bundle for react, react-dom, htmldocs-v2-*');
     const buildStart = performance.now();
     const buildData = await es.build({
       entryPoints: [documentPath],
       platform: "node",
       bundle: true,
+      external: [
+        // Core React
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        'react/jsx-dev-runtime',
+        
+        // htmldocs packages
+        'htmldocs-v2-react',
+        'htmldocs-v2-render',
+        
+        // Common Node.js built-ins that shouldn't be bundled
+        'fs',
+        'path',
+        'crypto',
+        'node:fs',
+        'node:path',
+        'node:crypto',
+      ],
       minify: false,
       write: false,
       format: "cjs",
@@ -80,11 +148,15 @@ export const getDocumentComponent = async (
       },
       plugins: [
         htmldocsPlugin([documentPath], false),
-        postCssPlugin({
-          postcss: {
-            plugins: [require("tailwindcss"), require("autoprefixer")],
-          },
-        }),
+        // Only run PostCSS/Tailwind if no cached CSS
+        ...(cachedCss 
+          ? [] 
+          : [postCssPlugin({
+              postcss: {
+                plugins: [tailwindPlugin, autoprefixerPlugin],
+              },
+            })]
+        ),
       ],
       loader: {
         ".ts": "ts",
@@ -129,7 +201,30 @@ export const getDocumentComponent = async (
     logger.debug('Files extracted');
     
     const builtDocumentCode = bundledDocumentFile.text;
-    const documentCss = cssFile?.text;
+    
+    // Use cached CSS or extract from build
+    let documentCss: string | undefined;
+    
+    if (cachedCss) {
+      documentCss = cachedCss;
+      logger.debug('[CSS Cache] Using cached CSS');
+    } else {
+      documentCss = cssFile?.text;
+      
+      // Cache for next time
+      if (documentCss && cssHash) {
+        cssCache.set(cssHash, documentCss);
+        
+        // FIFO eviction
+        if (cssCache.size > MAX_CSS_CACHE_SIZE) {
+          const firstKey = cssCache.keys().next().value;
+          if (firstKey) {
+            cssCache.delete(firstKey);
+          }
+        }
+        logger.debug(`[CSS Cache] Stored with hash ${cssHash.substring(0, 8)}`);
+      }
+    }
     
     logger.debug('Creating context');
     const fakeContext = createFakeContext(documentPath);
