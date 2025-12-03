@@ -36,8 +36,8 @@ const extractTailwindClasses = (content: string): string[] => {
   const classPattern = /className=["']([^"']+)["']/g;
   const classes: Set<string> = new Set();
   
-  // Use matchAll for cleaner iteration
-  for (const match of content.matchAll(classPattern)) {
+  let match;
+  while ((match = classPattern.exec(content)) !== null) {
     const classNames = match[1].split(/\s+/);
     classNames.forEach(cls => {
       if (cls.trim()) classes.add(cls.trim());
@@ -114,30 +114,30 @@ export const getDocumentComponent = async (
   let outputFiles: OutputFile[];
   try {
     logger.debug('Starting esbuild');
-    logger.debug('[External] Skipping bundle for react, react-dom, htmldocs-v2-*');
+    logger.debug('[External] Skipping bundle for react, react-dom');
     const buildStart = performance.now();
     const buildData = await es.build({
       entryPoints: [documentPath],
       platform: "node",
       bundle: true,
       external: [
-        // Core React
+        // Core React - safe to external, available in Node.js environment
         'react',
         'react-dom',
         'react/jsx-runtime',
         'react/jsx-dev-runtime',
         
-        // htmldocs packages
-        'htmldocs-v2-react',
-        'htmldocs-v2-render',
-        
-        // Common Node.js built-ins that shouldn't be bundled
+        // Node.js built-ins - safe to external
         'fs',
         'path',
         'crypto',
         'node:fs',
         'node:path',
         'node:crypto',
+        
+        // Note: htmldocs-v2-react and htmldocs-v2-render are NOT external
+        // because they're not available in the execution context.
+        // They will be bundled as before.
       ],
       minify: false,
       write: false,
