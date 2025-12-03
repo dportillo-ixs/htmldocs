@@ -114,20 +114,14 @@ export const getDocumentComponent = async (
   let outputFiles: OutputFile[];
   try {
     logger.debug('Starting esbuild');
-    logger.debug('[External] Skipping bundle for react, react-dom');
     const buildStart = performance.now();
     const buildData = await es.build({
       entryPoints: [documentPath],
       platform: "node",
       bundle: true,
       external: [
-        // Core React - safe to external, available in Node.js environment
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        'react/jsx-dev-runtime',
-        
-        // Node.js built-ins - safe to external
+        // Only Node.js built-in modules can be external
+        // because they're natively available in Node.js runtime
         'fs',
         'path',
         'crypto',
@@ -135,9 +129,14 @@ export const getDocumentComponent = async (
         'node:path',
         'node:crypto',
         
-        // Note: htmldocs-v2-react and htmldocs-v2-render are NOT external
-        // because they're not available in the execution context.
-        // They will be bundled as before.
+        // All other dependencies MUST be bundled because
+        // they're not available in the createFakeContext() execution environment:
+        // - react ❌ (not available in VM context)
+        // - react-dom ❌ (not available in VM context)
+        // - react/jsx-runtime ❌ (not available in VM context)
+        // - react/jsx-dev-runtime ❌ (not available in VM context)
+        // - htmldocs-v2-react ❌ (not available in VM context)
+        // - htmldocs-v2-render ❌ (not available in VM context)
       ],
       minify: false,
       write: false,
