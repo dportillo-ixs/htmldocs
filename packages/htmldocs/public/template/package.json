@@ -1,6 +1,6 @@
 {
   "name": "htmldocs-starter",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "private": true,
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -12,7 +12,7 @@
     "htmldocs-v2-render": "workspace:0.4.1",
     "@react-email/components": "0.0.18",
     "clsx": "^2.1.1",
-    "htmldocs-v2": "workspace:0.4.6",
+    "htmldocs-v2": "workspace:0.4.7",
     "markdown-it": "^14.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
