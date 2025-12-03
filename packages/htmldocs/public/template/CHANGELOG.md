@@ -1,5 +1,12 @@
 # htmldocs-starter
 
+## 0.4.6
+
+### Patch Changes
+
+- Updated dependencies [3512768]
+  - htmldocs-v2@0.4.6
+
 ## 0.4.5
 
 ### Patch Changes
