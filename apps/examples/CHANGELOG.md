@@ -1,5 +1,12 @@
 # @htmldocs/examples
 
+## 0.0.55
+
+### Patch Changes
+
+- Updated dependencies [39c4eaa]
+  - htmldocs-v2@0.4.10
+
 ## 0.0.54
 
 ### Patch Changes
