@@ -16,6 +16,8 @@ import { htmldocsPlugin } from "./htmldocs-esbuild-plugin";
 import postCssPlugin from "esbuild-style-plugin";
 import { RawSourceMap } from "source-map-js";
 import logger from "~/lib/logger";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
 
 // Build cache to avoid rebuilding unchanged files
 const MAX_CACHE_SIZE = 50;
@@ -60,9 +62,7 @@ const generateCssHash = (classes: string[]): string => {
   return crypto.createHash("md5").update(classesString).digest("hex");
 };
 
-// Cache PostCSS plugins to avoid repeated module resolution
-const tailwindPlugin = require("tailwindcss");
-const autoprefixerPlugin = require("autoprefixer");
+// PostCSS plugins are imported at the top of the file
 
 export const getDocumentComponent = async (
   documentPath: string,
@@ -178,7 +178,7 @@ export const getDocumentComponent = async (
               : [
                   postCssPlugin({
                     postcss: {
-                      plugins: [tailwindPlugin, autoprefixerPlugin],
+                      plugins: [tailwindcss, autoprefixer],
                     },
                   }),
                 ]),
