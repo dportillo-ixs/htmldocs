@@ -10,7 +10,7 @@ import { closeOraOnSIGINT } from '../close-ora-on-sigint';
 import { serveStaticFile } from './serve-static-file';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { cleanupBuildContexts } from '~/utils/get-document-component';
+import { cleanupBuildContexts } from '../../../utils/get-document-component';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
