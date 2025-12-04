@@ -27,7 +27,7 @@
     "report-generator",
     "contract-generator"
   ],
-  "version": "0.4.10",
+  "version": "0.4.11",
   "homepage": "https://htmldocs.com",
   "repository": {
     "type": "git",
