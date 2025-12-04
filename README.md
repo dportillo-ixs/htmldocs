@@ -35,6 +35,15 @@ htmldocs is a local document editor and preview server to help you _create_ PDFs
 - ⚡ Dynamic data integration through props and APIs
 - 📊 Real-time preview server with hot reloading
 
+## Project Status
+
+htmldocs is actively maintained with a focus on:
+
+- ⚡ **Performance optimization** - 8-12x faster hot reload in latest release
+- 🐛 **Bug fixes and stability improvements** - Regular updates based on user feedback
+- ✨ **New features** - Continuous improvement based on community feedback
+- 📦 **Regular NPM releases** - Frequent updates with latest features and fixes
+
 ## Example
 
 To see the full power of htmldocs, here is how you might build a dynamic invoice document template with JSX template variables:
