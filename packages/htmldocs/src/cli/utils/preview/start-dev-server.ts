@@ -166,7 +166,11 @@ const makeExitHandler =
     }
 
     // Dispose all build contexts before exiting
-    await disposeAllBuildContexts();
+    try {
+      await disposeAllBuildContexts();
+    } catch (error) {
+      console.error('Error disposing build contexts:', error);
+    }
 
     if (options?.shouldKillProcess) {
       process.exit(options.killWithErrorCode ? 1 : 0);

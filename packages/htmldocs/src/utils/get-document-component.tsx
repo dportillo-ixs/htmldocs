@@ -121,62 +121,68 @@ export const getDocumentComponent = async (
     
     // Get or create build context for incremental rebuilds
     let buildContext = buildContexts.get(documentPath);
+    const isNewContext = !buildContext;
     
     if (!buildContext) {
       logger.info('[esbuild] Creating new incremental build context');
       
-      buildContext = await es.context({
-        entryPoints: [documentPath],
-        platform: "node",
-        bundle: true,
-        external: [
-          // Only Node.js built-in modules can be external
-          // because they're natively available in Node.js runtime
-          'fs',
-          'path',
-          'crypto',
-          'node:fs',
-          'node:path',
-          'node:crypto',
-          
-          // All other dependencies MUST be bundled because
-          // they're not available in the createFakeContext() execution environment:
-          // - react ❌ (not available in VM context)
-          // - react-dom ❌ (not available in VM context)
-          // - react/jsx-runtime ❌ (not available in VM context)
-          // - react/jsx-dev-runtime ❌ (not available in VM context)
-          // - htmldocs-v2-react ❌ (not available in VM context)
-          // - htmldocs-v2-render ❌ (not available in VM context)
-        ],
-        minify: false,
-        write: false,
-        format: "cjs",
-        jsx: "automatic",
-        define: {
-          "process.env.NODE_ENV": '"development"',
-        },
-        plugins: [
-          htmldocsPlugin([documentPath], false),
-          // Only run PostCSS/Tailwind if no cached CSS
-          ...(cachedCss 
-            ? [] 
-            : [postCssPlugin({
-                postcss: {
-                  plugins: [tailwindPlugin, autoprefixerPlugin],
-                },
-              })]
-          ),
-        ],
-        loader: {
-          ".ts": "ts",
-          ".tsx": "tsx",
-          ".css": "css",
-        },
-        outdir: "stdout", // stub for esbuild, won't actually write to this folder
-        sourcemap: "external",
-      });
-      
-      buildContexts.set(documentPath, buildContext);
+      try {
+        buildContext = await es.context({
+          entryPoints: [documentPath],
+          platform: "node",
+          bundle: true,
+          external: [
+            // Only Node.js built-in modules can be external
+            // because they're natively available in Node.js runtime
+            'fs',
+            'path',
+            'crypto',
+            'node:fs',
+            'node:path',
+            'node:crypto',
+            
+            // All other dependencies MUST be bundled because
+            // they're not available in the createFakeContext() execution environment:
+            // - react ❌ (not available in VM context)
+            // - react-dom ❌ (not available in VM context)
+            // - react/jsx-runtime ❌ (not available in VM context)
+            // - react/jsx-dev-runtime ❌ (not available in VM context)
+            // - htmldocs-v2-react ❌ (not available in VM context)
+            // - htmldocs-v2-render ❌ (not available in VM context)
+          ],
+          minify: false,
+          write: false,
+          format: "cjs",
+          jsx: "automatic",
+          define: {
+            "process.env.NODE_ENV": '"development"',
+          },
+          plugins: [
+            htmldocsPlugin([documentPath], false),
+            // Only run PostCSS/Tailwind if no cached CSS
+            ...(cachedCss 
+              ? [] 
+              : [postCssPlugin({
+                  postcss: {
+                    plugins: [tailwindPlugin, autoprefixerPlugin],
+                  },
+                })]
+            ),
+          ],
+          loader: {
+            ".ts": "ts",
+            ".tsx": "tsx",
+            ".css": "css",
+          },
+          outdir: "stdout", // stub for esbuild, won't actually write to this folder
+          sourcemap: "external",
+        });
+        
+        buildContexts.set(documentPath, buildContext);
+      } catch (contextError) {
+        logger.error('[esbuild] Failed to create build context:', contextError);
+        throw contextError; // Re-throw to be handled by outer catch block
+      }
     } else {
       logger.info('[esbuild] Reusing incremental build context');
     }
@@ -185,7 +191,7 @@ export const getDocumentComponent = async (
     const buildData = await buildContext.rebuild();
     const buildTime = performance.now() - buildStart;
     logger.debug('esbuild completed');
-    logger.info(`[esbuild] ${buildContexts.has(documentPath) ? 'Incremental rebuild' : 'Initial build'} completed in ${buildTime.toFixed(2)}ms`);
+    logger.info(`[esbuild] ${isNewContext ? 'Initial build' : 'Incremental rebuild'} completed in ${buildTime.toFixed(2)}ms`);
     logger.info(`[esbuild] Contexts in memory: ${buildContexts.size}`);
     
     if (!buildData.outputFiles) {
