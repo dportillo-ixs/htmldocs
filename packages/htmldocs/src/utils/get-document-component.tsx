@@ -41,7 +41,10 @@ export const cleanupBuildContexts = async () => {
   
   for (let i = 0; i < contexts.length; i++) {
     try {
-      await contexts[i].dispose();
+      const context = contexts[i];
+      if (context) {
+        await context.dispose();
+      }
     } catch (error) {
       logger.debug(`[esbuild] Error disposing context for ${paths[i]}:`, error);
     }
