@@ -36,8 +36,15 @@ const buildContexts = new Map<string, es.BuildContext>();
 // Cleanup function for build contexts
 export const cleanupBuildContexts = async () => {
   logger.debug(`[esbuild] Cleaning up ${buildContexts.size} build contexts`);
-  for (const context of buildContexts.values()) {
-    await context.dispose();
+  const contexts = Array.from(buildContexts.values());
+  const paths = Array.from(buildContexts.keys());
+  
+  for (let i = 0; i < contexts.length; i++) {
+    try {
+      await contexts[i].dispose();
+    } catch (error) {
+      logger.debug(`[esbuild] Error disposing context for ${paths[i]}:`, error);
+    }
   }
   buildContexts.clear();
 };
@@ -135,10 +142,23 @@ export const getDocumentComponent = async (
     if (context) {
       // Reuse existing context for incremental rebuild (8-12x faster)
       logger.debug('[esbuild] Reusing incremental build context');
-      buildData = await context.rebuild();
-      const buildTime = performance.now() - buildStart;
-      logger.debug(`[esbuild] Incremental build completed in ${buildTime.toFixed(2)}ms ⚡`);
-      logger.debug(`[esbuild] Contexts in memory: ${buildContexts.size}`);
+      try {
+        buildData = await context.rebuild();
+        const buildTime = performance.now() - buildStart;
+        logger.debug(`[esbuild] Incremental build completed in ${buildTime.toFixed(2)}ms ⚡`);
+        logger.debug(`[esbuild] Contexts in memory: ${buildContexts.size}`);
+      } catch (rebuildError) {
+        // If rebuild fails, dispose the invalid context and remove from cache
+        logger.debug('[esbuild] Incremental rebuild failed, disposing invalid context');
+        try {
+          await context.dispose();
+        } catch (disposeError) {
+          logger.debug('[esbuild] Error disposing context:', disposeError);
+        }
+        buildContexts.delete(documentPath);
+        // Re-throw to be caught by outer try-catch
+        throw rebuildError;
+      }
     } else {
       // Create new incremental build context (first time for this document)
       logger.debug('[esbuild] Creating new incremental build context');
@@ -193,14 +213,26 @@ export const getDocumentComponent = async (
         sourcemap: "external",
       });
       
-      // Store context for next rebuild
-      buildContexts.set(documentPath, context);
-      
       // Perform initial build
-      buildData = await context.rebuild();
-      const buildTime = performance.now() - buildStart;
-      logger.debug(`[esbuild] Initial build completed in ${buildTime.toFixed(2)}ms`);
-      logger.debug(`[esbuild] Contexts in memory: ${buildContexts.size}`);
+      try {
+        buildData = await context.rebuild();
+        const buildTime = performance.now() - buildStart;
+        logger.debug(`[esbuild] Initial build completed in ${buildTime.toFixed(2)}ms`);
+        
+        // Only cache context after successful initial build
+        buildContexts.set(documentPath, context);
+        logger.debug(`[esbuild] Contexts in memory: ${buildContexts.size}`);
+      } catch (initialBuildError) {
+        // If initial build fails, dispose the context and don't cache it
+        logger.debug('[esbuild] Initial build failed, disposing context');
+        try {
+          await context.dispose();
+        } catch (disposeError) {
+          logger.debug('[esbuild] Error disposing context:', disposeError);
+        }
+        // Re-throw to be caught by outer try-catch
+        throw initialBuildError;
+      }
     }
     
     logger.debug('esbuild completed');
