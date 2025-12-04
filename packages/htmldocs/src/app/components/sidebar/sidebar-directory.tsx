@@ -2,9 +2,7 @@
 import { Collapsible, CollapsibleTrigger } from "~/components/ui/collapsible";
 import * as React from "react";
 import { cn } from "~/lib/utils";
-import {
-  documentsDirectoryAbsolutePath,
-} from "../../../utils/documents-directory-absolute-path";
+import { documentsDirectoryAbsolutePath } from "../../../utils/documents-directory-absolute-path";
 import { type DocumentsDirectory } from "~/actions/get-documents-directory-metadata";
 import { Folder, FolderOpen } from "@phosphor-icons/react";
 import { IconArrowDown } from "../icons/icon-arrow-down";
@@ -33,7 +31,7 @@ export const SidebarDirectory = ({
 
   const [open, setOpen] = React.useState(
     persistedOpenDirectories.has(directoryMetadata.absolutePath) ||
-      doesDirectoryContainCurrentDocumentOpen
+      doesDirectoryContainCurrentDocumentOpen,
   );
 
   return (
@@ -55,14 +53,22 @@ export const SidebarDirectory = ({
           "text-[14px] flex items-center font-medium gap-2 justify-between w-full my-1",
           {
             "cursor-pointer": !isEmpty,
-          }
+          },
         )}
       >
         <div className="flex gap-2 items-center text-muted-foreground group">
           {open ? (
-            <FolderOpen height="20" width="20" className="transition ease-in-out group-hover:text-foreground" />
+            <FolderOpen
+              height="20"
+              width="20"
+              className="transition ease-in-out group-hover:text-foreground"
+            />
           ) : (
-            <Folder height="20" width="20" className="transition ease-in-out group-hover:text-foreground" />
+            <Folder
+              height="20"
+              width="20"
+              className="transition ease-in-out group-hover:text-foreground"
+            />
           )}
           <h3 className="transition ease-in-out group-hover:text-foreground">
             {directoryMetadata.directoryName}

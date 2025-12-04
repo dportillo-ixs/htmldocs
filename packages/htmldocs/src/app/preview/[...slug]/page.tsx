@@ -1,13 +1,13 @@
-import { Suspense } from 'react';
-import path from 'node:path';
-import { redirect } from 'next/navigation';
-import { getDocumentPathFromSlug } from '~/actions/get-document-path-from-slug';
-import { getDocumentsDirectoryMetadata } from '~/actions/get-documents-directory-metadata';
-import { renderDocumentByPath } from '~/actions/render-document-by-path';
-import { documentsDirectoryAbsolutePath } from '../../../utils/documents-directory-absolute-path';
-import Home from '../../page';
-import Preview from './preview';
-import { getDocumentSchema } from '~/actions/get-document-schema';
+import { Suspense } from "react";
+import path from "node:path";
+import { redirect } from "next/navigation";
+import { getDocumentPathFromSlug } from "~/actions/get-document-path-from-slug";
+import { getDocumentsDirectoryMetadata } from "~/actions/get-documents-directory-metadata";
+import { renderDocumentByPath } from "~/actions/render-document-by-path";
+import { documentsDirectoryAbsolutePath } from "../../../utils/documents-directory-absolute-path";
+import Home from "../../page";
+import Preview from "./preview";
+import { getDocumentSchema } from "~/actions/get-document-schema";
 
 export const dynamicParams = true;
 
@@ -21,12 +21,12 @@ export const dynamic = "force-dynamic";
 const Page = async ({ params }: { params: PreviewParams }) => {
   // will come in here as segments of a relative path to the document
   // ex: ['authentication', 'verify-password.tsx']
-  const slug = params.slug.join('/');
+  const slug = params.slug.join("/");
   const documentsDirMetadata = await getDocumentsDirectoryMetadata(
     documentsDirectoryAbsolutePath,
   );
 
-  if (typeof documentsDirMetadata === 'undefined') {
+  if (typeof documentsDirMetadata === "undefined") {
     throw new Error(
       `Could not find the documents directory specified under ${documentsDirectoryAbsolutePath}!
 
@@ -40,7 +40,7 @@ This is most likely not an issue with the preview server. Maybe there was a typo
   } catch (exception) {
     if (exception instanceof Error) {
       console.warn(exception.message);
-      redirect('/');
+      redirect("/");
     }
     throw exception;
   }
@@ -49,8 +49,8 @@ This is most likely not an issue with the preview server. Maybe there was a typo
   const documentRenderingResult = await renderDocumentByPath(documentPath);
 
   if (
-    'error' in documentRenderingResult &&
-    process.env.NEXT_PUBLIC_IS_BUILDING === 'true'
+    "error" in documentRenderingResult &&
+    process.env.NEXT_PUBLIC_IS_BUILDING === "true"
   ) {
     throw new Error(documentRenderingResult.error.message, {
       cause: documentRenderingResult.error,
@@ -74,7 +74,7 @@ This is most likely not an issue with the preview server. Maybe there was a typo
 };
 
 export function generateMetadata({ params }: { params: PreviewParams }) {
-  return { title: `${path.basename(params.slug.join('/'))} — htmldocs` };
+  return { title: `${path.basename(params.slug.join("/"))} — htmldocs` };
 }
 
 export default Page;

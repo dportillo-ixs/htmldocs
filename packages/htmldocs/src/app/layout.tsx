@@ -3,9 +3,9 @@ import { Inter as FontSans } from "next/font/google";
 import "./globals.css";
 import { cn } from "~/lib/utils";
 import { ThemeProvider } from "~/components/theme-provider";
-import { getDocumentsDirectoryMetadata } from '~/actions/get-documents-directory-metadata';
-import { documentsDirectoryAbsolutePath } from '../utils/documents-directory-absolute-path';
-import { DocumentsProvider } from '~/contexts/documents';
+import { getDocumentsDirectoryMetadata } from "~/actions/get-documents-directory-metadata";
+import { documentsDirectoryAbsolutePath } from "../utils/documents-directory-absolute-path";
+import { DocumentsProvider } from "~/contexts/documents";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -24,7 +24,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
     documentsDirectoryAbsolutePath,
   );
 
-  if (typeof documentsDirectoryMetadata === 'undefined') {
+  if (typeof documentsDirectoryMetadata === "undefined") {
     throw new Error(
       `Could not find the documents directory specified under ${documentsDirectoryAbsolutePath}!`,
     );
@@ -35,7 +35,7 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       <body
         className={cn(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <ThemeProvider
@@ -53,6 +53,6 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
       </body>
     </html>
   );
-}
+};
 
 export default RootLayout;

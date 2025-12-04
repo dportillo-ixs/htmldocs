@@ -12,7 +12,7 @@ import AdmZip from "adm-zip";
 
 export const BUILD_DIR = path.join(
   process.env.NEXT_PUBLIC_USER_PROJECT_LOCATION || process.cwd(),
-  "dist"
+  "dist",
 );
 
 const cleanDistFolder = () => {
@@ -37,14 +37,17 @@ export const build = async (fileName: string, write: boolean = true) => {
 
     spinner.text = "Cleaning dist folder...";
     cleanDistFolder();
-    
+
     spinner.text = "Zipping static assets...";
-    const staticPath = path.join(process.env.DOCUMENTS_DIR_ABSOLUTE_PATH!, 'static');
-    
+    const staticPath = path.join(
+      process.env.DOCUMENTS_DIR_ABSOLUTE_PATH!,
+      "static",
+    );
+
     if (fs.existsSync(staticPath)) {
       const zip = new AdmZip();
-      zip.addLocalFolder(staticPath, 'static');
-      zip.writeZip(path.join(BUILD_DIR, 'static.zip'));
+      zip.addLocalFolder(staticPath, "static");
+      zip.writeZip(path.join(BUILD_DIR, "static.zip"));
       spinner.succeed("Static assets zipped");
     }
 

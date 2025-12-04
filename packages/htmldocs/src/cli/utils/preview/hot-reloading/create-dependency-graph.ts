@@ -1,7 +1,7 @@
-import path from 'node:path';
-import { existsSync, promises as fs, statSync } from 'node:fs';
-import { getImportedModules } from './get-imported-modules';
-import { isRunningBuilt } from '../start-dev-server';
+import path from "node:path";
+import { existsSync, promises as fs, statSync } from "node:fs";
+import { getImportedModules } from "./get-imported-modules";
+import { isRunningBuilt } from "../start-dev-server";
 
 interface Module {
   path: string;
@@ -36,7 +36,7 @@ const readAllFilesInsideDirectory = async (directory: string) => {
 const isJavascriptModule = (filePath: string) => {
   const extensionName = path.extname(filePath);
 
-  return ['.js', '.ts', '.jsx', '.tsx', '.mjs', '.cjs'].includes(extensionName);
+  return [".js", ".ts", ".jsx", ".tsx", ".mjs", ".cjs"].includes(extensionName);
 };
 
 const checkFileExtensionsUntilItExists = (
@@ -81,12 +81,12 @@ export const createDependencyGraph = async (directory: string) => {
   );
 
   const getDependencyPaths = async (filePath: string) => {
-    const contents = await fs.readFile(filePath, 'utf8');
+    const contents = await fs.readFile(filePath, "utf8");
 
     const importedPaths = getImportedModules(contents);
     const importedPathsRelativeToDirectory = importedPaths.map(
       (dependencyPath) => {
-        const isModulePath = !dependencyPath.startsWith('.');
+        const isModulePath = !dependencyPath.startsWith(".");
         /*
           path.isAbsolute will return false if the path looks like JavaScript module imports
           e.g. path.isAbsolute('react-dom/server') will return false, but for our purposes this
@@ -153,13 +153,13 @@ export const createDependencyGraph = async (directory: string) => {
 
     const moduleDependencies = importedPathsRelativeToDirectory.filter(
       (dependencyPath) =>
-        !dependencyPath.startsWith('.') && !path.isAbsolute(dependencyPath),
+        !dependencyPath.startsWith(".") && !path.isAbsolute(dependencyPath),
     );
 
     const nonNodeModuleImportPathsRelativeToDirectory =
       importedPathsRelativeToDirectory.filter(
         (dependencyPath) =>
-          dependencyPath.startsWith('.') || path.isAbsolute(dependencyPath),
+          dependencyPath.startsWith(".") || path.isAbsolute(dependencyPath),
       );
 
     return {
@@ -248,21 +248,21 @@ export const createDependencyGraph = async (directory: string) => {
      * @param pathToModified - A path relative to the previosuly provided {@link directory}.
      */
     async (
-      event: 'add' | 'addDir' | 'change' | 'unlink' | 'unlinkDir',
+      event: "add" | "addDir" | "change" | "unlink" | "unlinkDir",
       pathToModified: string,
     ) => {
       switch (event) {
-        case 'change':
+        case "change":
           if (isJavascriptModule(pathToModified)) {
             await updateModuleDependenciesInGraph(pathToModified);
           }
           break;
-        case 'add':
+        case "add":
           if (isJavascriptModule(pathToModified)) {
             await updateModuleDependenciesInGraph(pathToModified);
           }
           break;
-        case 'addDir':
+        case "addDir":
           const filesInsideAddedDirectory =
             await readAllFilesInsideDirectory(pathToModified);
           const modulesInsideAddedDirectory =
@@ -271,12 +271,12 @@ export const createDependencyGraph = async (directory: string) => {
             await updateModuleDependenciesInGraph(filePath);
           }
           break;
-        case 'unlink':
+        case "unlink":
           if (isJavascriptModule(pathToModified)) {
             removeModuleFromGraph(pathToModified);
           }
           break;
-        case 'unlinkDir':
+        case "unlinkDir":
           const filesInsideDeletedDirectory =
             await readAllFilesInsideDirectory(pathToModified);
           const modulesInsideDeletedDirectory =

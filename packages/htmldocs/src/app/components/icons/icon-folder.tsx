@@ -1,6 +1,6 @@
-import * as React from 'react';
-import type { IconElement, IconProps } from './icon-base';
-import { IconBase } from './icon-base';
+import * as React from "react";
+import type { IconElement, IconProps } from "./icon-base";
+import { IconBase } from "./icon-base";
 
 export const IconFolder = React.forwardRef<IconElement, Readonly<IconProps>>(
   ({ ...props }, forwardedRef) => (
@@ -15,4 +15,4 @@ export const IconFolder = React.forwardRef<IconElement, Readonly<IconProps>>(
   ),
 );
 
-IconFolder.displayName = 'IconFolder';
+IconFolder.displayName = "IconFolder";

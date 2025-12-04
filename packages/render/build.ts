@@ -1,17 +1,19 @@
-import esbuild from 'esbuild';
-import inlineImportPlugin from 'esbuild-plugin-inline-import';
+import esbuild from "esbuild";
+import inlineImportPlugin from "esbuild-plugin-inline-import";
 
-esbuild.build({
-  entryPoints: ['src/index.ts'],
-  bundle: true,
-  outdir: 'dist',
-  format: 'cjs',
-  sourcemap: true,
-  platform: 'node',
-  external: ['react', 'react-dom'],
-  plugins: [
-    inlineImportPlugin({
-      filter: /^(.*)\.css$/,
-    }),
-  ],
-}).catch(() => process.exit(1));
+esbuild
+  .build({
+    entryPoints: ["src/index.ts"],
+    bundle: true,
+    outdir: "dist",
+    format: "cjs",
+    sourcemap: true,
+    platform: "node",
+    external: ["react", "react-dom"],
+    plugins: [
+      inlineImportPlugin({
+        filter: /^(.*)\.css$/,
+      }),
+    ],
+  })
+  .catch(() => process.exit(1));

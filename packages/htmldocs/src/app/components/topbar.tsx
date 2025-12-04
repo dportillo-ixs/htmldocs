@@ -36,14 +36,14 @@ export const Topbar: React.FC<Readonly<TopbarProps>> = ({
     }
 
     setIsDownloading(true);
-    
+
     try {
-      const pdfBuffer = await renderDocumentToPDF({ 
+      const pdfBuffer = await renderDocumentToPDF({
         url: window.location.href,
         html: markup,
-        pageConfig: pageConfigs[documentPath]
+        pageConfig: pageConfigs[documentPath],
       });
-      
+
       if (pdfBuffer instanceof Error) {
         throw pdfBuffer;
       }
@@ -62,7 +62,9 @@ export const Topbar: React.FC<Readonly<TopbarProps>> = ({
       toast.success("PDF downloaded successfully");
     } catch (error) {
       console.error("Error downloading document:", error);
-      toast.error("Failed to generate PDF. Check the CLI logs for more details.");
+      toast.error(
+        "Failed to generate PDF. Check the CLI logs for more details.",
+      );
     } finally {
       setIsDownloading(false);
     }
@@ -80,7 +82,11 @@ export const Topbar: React.FC<Readonly<TopbarProps>> = ({
           }
         }}
       >
-        <Sidebar height={20} width={20} className="text-muted-foreground group-hover:text-foreground transition-colors duration-150"/>
+        <Sidebar
+          height={20}
+          width={20}
+          className="text-muted-foreground group-hover:text-foreground transition-colors duration-150"
+        />
       </Button>
       <div className="items-center overflow-hidden hidden lg:flex text-center absolute left-1/2 transform -translate-x-1/2 top-1/2 -translate-y-1/2">
         <h2 className="truncate text-sm font-medium text-foreground">
@@ -88,22 +94,22 @@ export const Topbar: React.FC<Readonly<TopbarProps>> = ({
         </h2>
       </div>
       <div className="flex items-center gap-2">
-        <Button 
-          variant="secondary" 
+        <Button
+          variant="secondary"
           onClick={() => setIsContextEditorOpen(true)}
         >
           Fill & Generate
         </Button>
-        <Button 
-          variant="default" 
-          onClick={renderAndDownloadPDF} 
+        <Button
+          variant="default"
+          onClick={renderAndDownloadPDF}
           disabled={isDownloading}
         >
           {isDownloading ? "Downloading..." : "Download"}
         </Button>
       </div>
 
-      <ContextEditorModal 
+      <ContextEditorModal
         documentPath={documentPath}
         documentSlug={currentDocumentOpenSlug}
         isOpen={isContextEditorOpen}

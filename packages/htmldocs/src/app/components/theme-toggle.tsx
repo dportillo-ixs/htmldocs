@@ -1,20 +1,20 @@
-"use client"
- 
-import * as React from "react"
-import { Sun, Moon } from "@phosphor-icons/react"
-import { useTheme } from "next-themes"
- 
-import { Button } from "~/components/ui/button"
+"use client";
+
+import * as React from "react";
+import { Sun, Moon } from "@phosphor-icons/react";
+import { useTheme } from "next-themes";
+
+import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu"
- 
+} from "~/components/ui/dropdown-menu";
+
 const ThemeToggle = () => {
-  const { setTheme } = useTheme()
- 
+  const { setTheme } = useTheme();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -36,7 +36,7 @@ const ThemeToggle = () => {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
-}
+  );
+};
 
 export default ThemeToggle;

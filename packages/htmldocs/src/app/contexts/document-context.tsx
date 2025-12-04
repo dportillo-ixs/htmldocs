@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState } from 'react';
-import { JSONSchema7 } from 'json-schema';
-import logger from '~/lib/logger';
+import React, { createContext, useContext, useState } from "react";
+import { JSONSchema7 } from "json-schema";
+import logger from "~/lib/logger";
 
 interface DocumentContextValue {
   documentSchema: JSONSchema7;
@@ -10,12 +10,16 @@ interface DocumentContextValue {
   resetDocumentContext: () => void;
 }
 
-const DocumentContext = createContext<DocumentContextValue | undefined>(undefined);
+const DocumentContext = createContext<DocumentContextValue | undefined>(
+  undefined,
+);
 
 export const useDocumentContext = () => {
   const context = useContext(DocumentContext);
   if (!context) {
-    throw new Error('useDocumentContext must be used within a DocumentContextProvider');
+    throw new Error(
+      "useDocumentContext must be used within a DocumentContextProvider",
+    );
   }
   return context;
 };
@@ -26,17 +30,17 @@ interface DocumentContextProviderProps {
   initialDocumentSchema: JSONSchema7;
 }
 
-export const DocumentContextProvider: React.FC<DocumentContextProviderProps> = ({ 
-  children, 
-  initialDocumentPreviewProps, 
-  initialDocumentSchema,
-}) => {
-  const [documentContext, setDocumentContext] = useState<Record<string, any>>({ document: initialDocumentPreviewProps || {} });
+export const DocumentContextProvider: React.FC<
+  DocumentContextProviderProps
+> = ({ children, initialDocumentPreviewProps, initialDocumentSchema }) => {
+  const [documentContext, setDocumentContext] = useState<Record<string, any>>({
+    document: initialDocumentPreviewProps || {},
+  });
 
   logger.debug("Initial document context:", documentContext);
 
   const updateDocumentContext = (path: string, newValue: any) => {
-    const pathParts = path.split('.');
+    const pathParts = path.split(".");
     const lastKey = pathParts.pop();
     let subContext = { ...documentContext };
     let current = subContext;
@@ -54,8 +58,8 @@ export const DocumentContextProvider: React.FC<DocumentContextProviderProps> = (
   };
 
   const resetDocumentContext = () => {
-    setDocumentContext(() => ({ 
-      document: JSON.parse(JSON.stringify(initialDocumentPreviewProps || {})) 
+    setDocumentContext(() => ({
+      document: JSON.parse(JSON.stringify(initialDocumentPreviewProps || {})),
     }));
   };
 
@@ -67,5 +71,9 @@ export const DocumentContextProvider: React.FC<DocumentContextProviderProps> = (
     resetDocumentContext,
   };
 
-  return <DocumentContext.Provider value={value}>{children}</DocumentContext.Provider>;
+  return (
+    <DocumentContext.Provider value={value}>
+      {children}
+    </DocumentContext.Provider>
+  );
 };
