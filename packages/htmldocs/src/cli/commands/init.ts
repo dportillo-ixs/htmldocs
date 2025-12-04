@@ -8,7 +8,10 @@ import logger from "~/lib/logger";
 import { cliPackageLocation } from "../utils";
 
 export const init = async (projectName: string) => {
-  logger.debug("CLI package location", process.env.NEXT_PUBLIC_CLI_PACKAGE_LOCATION);
+  logger.debug(
+    "CLI package location",
+    process.env.NEXT_PUBLIC_CLI_PACKAGE_LOCATION,
+  );
   if (!process.env.NEXT_PUBLIC_CLI_PACKAGE_LOCATION) {
     logger.error("NEXT_PUBLIC_CLI_PACKAGE_LOCATION is not set");
     process.exit(1);
@@ -33,45 +36,72 @@ export const init = async (projectName: string) => {
     recursive: true,
   });
 
-  const templatePackageJsonPath = path.resolve(resolvedProjectPath, "./package.json");
-  const templatePackageJson = JSON.parse(fse.readFileSync(templatePackageJsonPath, "utf8"));
+  const templatePackageJsonPath = path.resolve(
+    resolvedProjectPath,
+    "./package.json",
+  );
+  const templatePackageJson = JSON.parse(
+    fse.readFileSync(templatePackageJsonPath, "utf8"),
+  );
 
   for (const key in templatePackageJson.dependencies) {
-    templatePackageJson.dependencies[key] = templatePackageJson.dependencies[key].replace("workspace:", "");
+    templatePackageJson.dependencies[key] = templatePackageJson.dependencies[
+      key
+    ].replace("workspace:", "");
   }
 
-  fse.writeFileSync(templatePackageJsonPath, JSON.stringify(templatePackageJson, null, 2), "utf8");
+  fse.writeFileSync(
+    templatePackageJsonPath,
+    JSON.stringify(templatePackageJson, null, 2),
+    "utf8",
+  );
 
   spinner.text = "Installing dependencies...";
 
   try {
     await new Promise<void>((resolve, reject) => {
       spinner.text = "Installing dependencies...";
-      exec("npm install", { cwd: resolvedProjectPath }, (error, stdout, stderr) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
-      });
+      exec(
+        "npm install",
+        { cwd: resolvedProjectPath },
+        (error, stdout, stderr) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        },
+      );
     });
 
     // Install Playwright
     spinner.text = "Installing Playwright...";
     await new Promise<void>((resolve, reject) => {
-      exec("npx playwright install", { cwd: resolvedProjectPath }, (error, stdout, stderr) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve();
-        }
-      });
+      exec(
+        "npx playwright install",
+        { cwd: resolvedProjectPath },
+        (error, stdout, stderr) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        },
+      );
     });
 
-    spinner.succeed(chalk.green(`Created project "${projectName}" and installed dependencies`));
-    
+    spinner.succeed(
+      chalk.green(
+        `Created project "${projectName}" and installed dependencies`,
+      ),
+    );
+
     // Add colorized instructions for the user
-    console.log("\n" + chalk.blue(logSymbols.info) + chalk.bold(" To start your project:"));
+    console.log(
+      "\n" +
+        chalk.blue(logSymbols.info) +
+        chalk.bold(" To start your project:"),
+    );
     console.log(chalk.cyan(`  cd ${projectName}`));
     console.log(chalk.cyan("  npm run dev"));
   } catch (error) {

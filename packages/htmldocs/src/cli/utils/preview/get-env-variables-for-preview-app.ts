@@ -1,4 +1,4 @@
-import path from 'path';
+import path from "path";
 
 export const getEnvVariablesForPreviewApp = (
   relativePathToDocumentsDirectory: string,
@@ -12,8 +12,14 @@ export const getEnvVariablesForPreviewApp = (
     NEXT_PUBLIC_USER_PROJECT_LOCATION: cwd,
     // new vars
     DOCUMENTS_DIR_RELATIVE_PATH: relativePathToDocumentsDirectory,
-    DOCUMENTS_STATIC_PATH: path.resolve(relativePathToDocumentsDirectory, 'static'),
-    DOCUMENTS_DIR_ABSOLUTE_PATH: path.resolve(cwd, relativePathToDocumentsDirectory),
+    DOCUMENTS_STATIC_PATH: path.resolve(
+      relativePathToDocumentsDirectory,
+      "static",
+    ),
+    DOCUMENTS_DIR_ABSOLUTE_PATH: path.resolve(
+      cwd,
+      relativePathToDocumentsDirectory,
+    ),
     USER_PROJECT_LOCATION: cwd,
   } as const;
 };

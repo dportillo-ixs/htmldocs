@@ -46,7 +46,11 @@ export const Shell = ({
               setSidebarToggled((v) => !v);
             }}
           >
-            <List height={20} width={20} className="text-muted-foreground group-hover:text-foreground transition-colors duration-150"/>
+            <List
+              height={20}
+              width={20}
+              className="text-muted-foreground group-hover:text-foreground transition-colors duration-150"
+            />
           </Button>
         </div>
 
@@ -57,7 +61,7 @@ export const Shell = ({
               {
                 "translate-x-0 lg:-translate-x-full": sidebarToggled,
                 "-translate-x-full lg:translate-x-0": !sidebarToggled,
-              }
+              },
             )}
             currentDocumentOpenSlug={currentDocumentOpenSlug}
             style={{
@@ -71,7 +75,7 @@ export const Shell = ({
               {
                 "lg:translate-x-0 lg:w-[calc(100vw)]": sidebarToggled,
                 "lg:translate-x-0 lg:w-[calc(100vw-275px)]": !sidebarToggled,
-              }
+              },
             )}
             style={{
               transition: triggerTransition
@@ -101,14 +105,14 @@ export const Shell = ({
               />
             ) : null}
 
-            <div className="w-full h-full overflow-auto mx-auto">{children}</div>
+            <div className="w-full h-full overflow-auto mx-auto">
+              {children}
+            </div>
           </main>
         </div>
       </div>
       <div className="print-show">
-        <div className="h-screen">
-          {children}
-        </div>
+        <div className="h-screen">{children}</div>
       </div>
     </>
   );

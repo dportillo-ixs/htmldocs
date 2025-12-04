@@ -1,7 +1,7 @@
-'use server';
+"use server";
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import fs from 'node:fs';
-import path from 'node:path';
+import fs from "node:fs";
+import path from "node:path";
 
 const isFileADocument = (fullPath: string): boolean => {
   const stat = fs.statSync(fullPath);
@@ -10,7 +10,7 @@ const isFileADocument = (fullPath: string): boolean => {
 
   const { ext } = path.parse(fullPath);
 
-  if (!['.js', '.tsx', '.jsx'].includes(ext)) return false;
+  if (![".js", ".tsx", ".jsx"].includes(ext)) return false;
 
   // This is to avoid a possible race condition where the file doesn't exist anymore
   // once we are checking if it is an actual document, this could cause issues that
@@ -21,7 +21,7 @@ const isFileADocument = (fullPath: string): boolean => {
 
   // check with a heuristic to see if the file has at least
   // a default export
-  const fileContents = fs.readFileSync(fullPath, 'utf8');
+  const fileContents = fs.readFileSync(fullPath, "utf8");
 
   return /\bexport\s+default\b/gm.test(fileContents);
 };
@@ -70,14 +70,17 @@ export const getDocumentsDirectoryMetadata = async (
   });
 
   const documentFilenames = dirents
-    .filter((dirent) => 
-      !dirent.name.startsWith('.') && 
-      isFileADocument(path.join(absolutePathToDocumentsDirectory, dirent.name)),
+    .filter(
+      (dirent) =>
+        !dirent.name.startsWith(".") &&
+        isFileADocument(
+          path.join(absolutePathToDocumentsDirectory, dirent.name),
+        ),
     )
     .map((dirent) =>
       keepFileExtensions
         ? dirent.name
-        : dirent.name.replace(path.extname(dirent.name), ''),
+        : dirent.name.replace(path.extname(dirent.name), ""),
     );
 
   const subDirectories = await Promise.all(
@@ -85,9 +88,9 @@ export const getDocumentsDirectoryMetadata = async (
       .filter(
         (dirent) =>
           dirent.isDirectory() &&
-          !dirent.name.startsWith('_') &&
-          !dirent.name.startsWith('.') &&
-          dirent.name !== 'static',
+          !dirent.name.startsWith("_") &&
+          !dirent.name.startsWith(".") &&
+          dirent.name !== "static",
       )
       .map((dirent) => {
         const direntAbsolutePath = path.join(

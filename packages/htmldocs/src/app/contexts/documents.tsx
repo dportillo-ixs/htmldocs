@@ -10,7 +10,10 @@ import {
   type DocumentRenderingResult,
 } from "~/actions/render-document-by-path";
 import { getDocumentPathFromSlug } from "~/actions/get-document-path-from-slug";
-import { renderDocumentToPDF, RenderDocumentToPDFProps } from "~/actions/render-document-to-pdf";
+import {
+  renderDocumentToPDF,
+  RenderDocumentToPDFProps,
+} from "~/actions/render-document-to-pdf";
 import { PageConfig } from "~/lib/types";
 import logger from "~/lib/logger";
 import { JSONSchema7Definition } from "json-schema";
@@ -24,9 +27,12 @@ const DocumentsContext = createContext<
        */
       useDocumentRenderingResult: (
         documentPath: string,
-        serverDocumentRenderedResult: DocumentRenderingResult
+        serverDocumentRenderedResult: DocumentRenderingResult,
       ) => DocumentRenderingResult;
-      renderDocumentToPDF: ({ url, ...props }: RenderDocumentToPDFProps) => Promise<Buffer | Error>;
+      renderDocumentToPDF: ({
+        url,
+        ...props
+      }: RenderDocumentToPDFProps) => Promise<Buffer | Error>;
       pageConfigs: Record<string, PageConfig>;
       setPageConfig: (documentPath: string, config: PageConfig) => void;
       documentSchemas: Record<string, JSONSchema7Definition>;
@@ -39,7 +45,7 @@ export const useDocuments = () => {
 
   if (typeof providerValue === "undefined") {
     throw new Error(
-      "Cannot call `useDocument()` outside of a DocumentsContext provider!"
+      "Cannot call `useDocument()` outside of a DocumentsContext provider!",
     );
   }
 
@@ -56,13 +62,17 @@ export const DocumentsProvider = (props: {
   const [renderingResultPerDocumentPath, setRenderingResultPerDocumentPath] =
     useState<Record<string, DocumentRenderingResult>>({});
 
-  const [pageConfigs, setPageConfigs] = useState<Record<string, PageConfig>>({});
-  const [documentSchemas, setDocumentSchemas] = useState<Record<string, JSONSchema7Definition>>({});
+  const [pageConfigs, setPageConfigs] = useState<Record<string, PageConfig>>(
+    {},
+  );
+  const [documentSchemas, setDocumentSchemas] = useState<
+    Record<string, JSONSchema7Definition>
+  >({});
 
   const setPageConfig = (documentPath: string, config: PageConfig) => {
-    setPageConfigs(prev => ({
+    setPageConfigs((prev) => ({
       ...prev,
-      [documentPath]: config
+      [documentPath]: config,
     }));
   };
 
@@ -70,13 +80,13 @@ export const DocumentsProvider = (props: {
     try {
       const schema = await getDocumentSchema(documentPath);
       if (schema) {
-        setDocumentSchemas(prev => ({
+        setDocumentSchemas((prev) => ({
           ...prev,
-          [documentPath]: schema
+          [documentPath]: schema,
         }));
       }
     } catch (error) {
-      logger.warn('Failed to load schema:', error);
+      logger.warn("Failed to load schema:", error);
     }
   };
 
@@ -93,7 +103,7 @@ export const DocumentsProvider = (props: {
         setDocumentsDirectoryMetadata(metadata);
       } else {
         throw new Error(
-          "Hot reloading: unable to find the documents directory to update the sidebar"
+          "Hot reloading: unable to find the documents directory to update the sidebar",
         );
       }
 
@@ -103,7 +113,7 @@ export const DocumentsProvider = (props: {
         }
 
         // If the document is being deleted, don't try to render it
-        if (change.event === 'unlink') {
+        if (change.event === "unlink") {
           continue;
         }
 
@@ -114,7 +124,7 @@ export const DocumentsProvider = (props: {
           change.filename;
 
         const pathForChangedDocument = await getDocumentPathFromSlug(
-          slugForChangedDocument
+          slugForChangedDocument,
         );
 
         const lastResult =
@@ -123,7 +133,7 @@ export const DocumentsProvider = (props: {
         if (typeof lastResult !== "undefined") {
           logger.debug("pathForChangedDocument", pathForChangedDocument);
           const renderingResult = await renderDocumentByPath(
-            pathForChangedDocument
+            pathForChangedDocument,
           );
 
           setRenderingResultPerDocumentPath((map) => ({
@@ -144,7 +154,7 @@ export const DocumentsProvider = (props: {
         documentsDirectoryMetadata,
         useDocumentRenderingResult: (
           documentPath,
-          serverDocumentRenderedResult
+          serverDocumentRenderedResult,
         ) => {
           useEffect(() => {
             if (

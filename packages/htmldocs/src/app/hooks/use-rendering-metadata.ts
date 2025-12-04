@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import type {
   DocumentRenderingResult,
   RenderedDocumentMetadata,
-} from '~/actions/render-document-by-path';
+} from "~/actions/render-document-by-path";
 
 const lastRenderingMetadataPerDocumentPath = {} as Record<
   string,
@@ -19,18 +19,19 @@ export const useRenderingMetadata = (
   initialRenderingMetadata?: DocumentRenderingResult,
 ): RenderedDocumentMetadata | undefined => {
   useEffect(() => {
-    if (renderingResult && 'markup' in renderingResult) {
+    if (renderingResult && "markup" in renderingResult) {
       lastRenderingMetadataPerDocumentPath[documentPath] = renderingResult;
     } else if (
-      typeof initialRenderingMetadata !== 'undefined' &&
-      'markup' in initialRenderingMetadata &&
-      typeof lastRenderingMetadataPerDocumentPath[documentPath] === 'undefined'
+      typeof initialRenderingMetadata !== "undefined" &&
+      "markup" in initialRenderingMetadata &&
+      typeof lastRenderingMetadataPerDocumentPath[documentPath] === "undefined"
     ) {
-      lastRenderingMetadataPerDocumentPath[documentPath] = initialRenderingMetadata;
+      lastRenderingMetadataPerDocumentPath[documentPath] =
+        initialRenderingMetadata;
     }
   }, [renderingResult, documentPath, initialRenderingMetadata]);
 
-  return renderingResult && 'error' in renderingResult
+  return renderingResult && "error" in renderingResult
     ? lastRenderingMetadataPerDocumentPath[documentPath]
     : renderingResult;
 };

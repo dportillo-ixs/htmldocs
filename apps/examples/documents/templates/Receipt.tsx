@@ -1,5 +1,5 @@
-import { Document, Footer, Head, MarginBox, Page } from "htmldocs-v2-react"
-import "~/index.css"
+import { Document, Footer, Head, MarginBox, Page } from "htmldocs-v2-react";
+import "~/index.css";
 
 interface BillingAddress {
   name: string;
@@ -28,21 +28,21 @@ export interface ReceiptProps {
   items: OrderItem[];
 }
 
-function Receipt({ 
+function Receipt({
   orderNumber,
   orderDate,
   orderTotal,
   customerName,
   billingAddress,
-  items 
+  items,
 }: ReceiptProps) {
   // Calculate total dynamically
   const calculateTotal = () => {
     return items.reduce((sum, item) => {
-      const price = item.discountedPrice 
-        ? parseFloat(item.discountedPrice.replace('$', '').replace(',', ''))
-        : parseFloat(item.price.replace('$', '').replace(',', ''));
-      return sum + (price * item.quantity);
+      const price = item.discountedPrice
+        ? parseFloat(item.discountedPrice.replace("$", "").replace(",", ""))
+        : parseFloat(item.price.replace("$", "").replace(",", ""));
+      return sum + price * item.quantity;
     }, 0);
   };
 
@@ -53,16 +53,26 @@ function Receipt({
       </Head>
       <Page className="flex flex-col gap-4 p-6 font-sans">
         <header className="text-center">
-          <img src="/static/axis.svg" alt="Axis" className="mx-auto w-48 mb-1 h-auto" />
-          <h2 className="text-2xl font-semibold text-gray-700 mb-2">Order Confirmation</h2>
+          <img
+            src="/static/axis.svg"
+            alt="Axis"
+            className="mx-auto w-48 mb-1 h-auto"
+          />
+          <h2 className="text-2xl font-semibold text-gray-700 mb-2">
+            Order Confirmation
+          </h2>
           <p className="text-gray-500 max-w-md mx-auto">
-            Thank you for your purchase! Your order has been confirmed and will ship in the next 24 hours. 
-            For any inquiries, please reach out to our support team.
+            Thank you for your purchase! Your order has been confirmed and will
+            ship in the next 24 hours. For any inquiries, please reach out to
+            our support team.
           </p>
         </header>
 
         <div className="flex justify-center mb-6">
-          <a href="https://www.google.com" className="bg-black text-white px-6 py-3 rounded hover:bg-gray-800 transition-colors">
+          <a
+            href="https://www.google.com"
+            className="bg-black text-white px-6 py-3 rounded hover:bg-gray-800 transition-colors"
+          >
             View Order Details
           </a>
         </div>
@@ -75,15 +85,27 @@ function Receipt({
             <dl className="space-y-3">
               <div className="flex justify-between">
                 <dt className="text-sm text-gray-500">Order Number</dt>
-                <dd className="text-sm font-medium text-gray-900">{orderNumber}</dd>
+                <dd className="text-sm font-medium text-gray-900">
+                  {orderNumber}
+                </dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-sm text-gray-500">Order Date</dt>
-                <dd className="text-sm font-medium text-gray-900">{orderDate}</dd>
+                <dd className="text-sm font-medium text-gray-900">
+                  {orderDate}
+                </dd>
               </div>
               <div className="flex justify-between border-t border-gray-100 pt-3 mt-3">
-                <dt className="text-sm font-medium text-gray-900">Total Amount</dt>
-                <dd className="text-sm font-bold text-gray-900">${calculateTotal().toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</dd>
+                <dt className="text-sm font-medium text-gray-900">
+                  Total Amount
+                </dt>
+                <dd className="text-sm font-bold text-gray-900">
+                  $
+                  {calculateTotal().toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </dd>
               </div>
             </dl>
           </section>
@@ -93,16 +115,20 @@ function Receipt({
               Billing Information
             </h3>
             <div className="space-y-1">
-              <p className="text-sm font-medium text-gray-900">{billingAddress.name}</p>
+              <p className="text-sm font-medium text-gray-900">
+                {billingAddress.name}
+              </p>
               <p className="text-sm text-gray-600">{billingAddress.street}</p>
               <p className="text-sm text-gray-600">
-                {billingAddress.city}, {billingAddress.state} {billingAddress.zip}
+                {billingAddress.city}, {billingAddress.state}{" "}
+                {billingAddress.zip}
               </p>
               <p className="text-sm text-gray-600">{billingAddress.country}</p>
             </div>
             <div className="mt-4 pt-3 border-t border-gray-100">
               <p className="text-sm text-gray-500">
-                Customer ID: <span className="font-medium text-gray-900">ACME-2023</span>
+                Customer ID:{" "}
+                <span className="font-medium text-gray-900">ACME-2023</span>
               </p>
             </div>
           </section>
@@ -124,10 +150,16 @@ function Receipt({
                 <tr key={`order-item-${index}`} className="border-b">
                   <td className="py-4">
                     <div className="flex items-center gap-4">
-                      <img src={item.image} alt={item.name} className="w-16 h-16 object-cover" />
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-16 h-16 object-cover"
+                      />
                       <div>
                         <p className="font-semibold">{item.name}</p>
-                        <p className="text-sm text-gray-600">{item.description}</p>
+                        <p className="text-sm text-gray-600">
+                          {item.description}
+                        </p>
                       </div>
                     </div>
                   </td>
@@ -135,7 +167,9 @@ function Receipt({
                   <td className="py-4 text-right">
                     {item.discountedPrice ? (
                       <>
-                        <p className="line-through text-gray-500">{item.price}</p>
+                        <p className="line-through text-gray-500">
+                          {item.price}
+                        </p>
                         <p className="font-bold">{item.discountedPrice}</p>
                       </>
                     ) : (
@@ -143,19 +177,30 @@ function Receipt({
                     )}
                   </td>
                   <td className="py-4 text-right font-medium">
-                    ${(item.quantity * parseFloat((item.discountedPrice || item.price).replace('$', '').replace(',', ''))).toLocaleString('en-US', { 
-                      minimumFractionDigits: 2, 
-                      maximumFractionDigits: 2 
+                    $
+                    {(
+                      item.quantity *
+                      parseFloat(
+                        (item.discountedPrice || item.price)
+                          .replace("$", "")
+                          .replace(",", ""),
+                      )
+                    ).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
                     })}
                   </td>
                 </tr>
               ))}
               <tr className="border-t">
-                <td colSpan={3} className="py-4 text-right font-medium pr-8">Total:</td>
+                <td colSpan={3} className="py-4 text-right font-medium pr-8">
+                  Total:
+                </td>
                 <td className="py-4 text-right font-bold">
-                  ${calculateTotal().toLocaleString('en-US', { 
-                    minimumFractionDigits: 2, 
-                    maximumFractionDigits: 2 
+                  $
+                  {calculateTotal().toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
                   })}
                 </td>
               </tr>
@@ -163,28 +208,30 @@ function Receipt({
           </table>
         </section>
 
-        <Footer 
+        <Footer
           position="bottom-center"
           className="text-sm text-gray-500"
           marginBoxStyles={{
-            marginBottom: '0.5in',
+            marginBottom: "0.5in",
           }}
         >
           {({ currentPage, totalPages }) => (
-            <>Page {currentPage} of {totalPages}</>
+            <>
+              Page {currentPage} of {totalPages}
+            </>
           )}
         </Footer>
       </Page>
     </Document>
-  )
+  );
 }
 
 Receipt.PreviewProps = {
   orderNumber: `ORD-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-  orderDate: new Date().toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  orderDate: new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   }),
   orderTotal: "$1,499.00", // This will be overridden by calculated total
   customerName: "Acme Corporation",
@@ -194,7 +241,7 @@ Receipt.PreviewProps = {
     city: "San Francisco",
     state: "CA",
     zip: "94105",
-    country: "United States"
+    country: "United States",
   },
   items: [
     {
@@ -203,7 +250,7 @@ Receipt.PreviewProps = {
       quantity: 1,
       price: "$999.00",
       discountedPrice: null,
-      image: "/static/placeholder.svg?height=100&width=100"
+      image: "/static/placeholder.svg?height=100&width=100",
     },
     {
       name: "Additional User Seats",
@@ -211,9 +258,9 @@ Receipt.PreviewProps = {
       quantity: 2,
       price: "$299.00",
       discountedPrice: "$249.00",
-      image: "/static/placeholder.svg?height=100&width=100"
-    }
-  ]
+      image: "/static/placeholder.svg?height=100&width=100",
+    },
+  ],
 };
 
 Receipt.documentId = "receipt";

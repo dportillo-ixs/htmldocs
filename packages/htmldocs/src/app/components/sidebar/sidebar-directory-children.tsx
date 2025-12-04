@@ -3,9 +3,7 @@ import { CollapsibleContent } from "~/components/ui/collapsible";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { DocumentsDirectory } from "~/actions/get-documents-directory-metadata";
-import {
-  documentsDirectoryAbsolutePath,
-} from "../../../utils/documents-directory-absolute-path";
+import { documentsDirectoryAbsolutePath } from "../../../utils/documents-directory-absolute-path";
 import { cn } from "~/lib/utils";
 // import { IconFile } from "../icons/icon-file";
 import { File } from "@phosphor-icons/react";
@@ -50,7 +48,7 @@ export const SidebarDirectoryChildren = (props: {
                       documentsDirectoryMetadata={subDirectory}
                       key={subDirectory.absolutePath}
                     />
-                  )
+                  ),
                 )}
 
                 {props.documentsDirectoryMetadata.documentFilenames.map(
@@ -91,7 +89,7 @@ export const SidebarDirectoryChildren = (props: {
                               "text-cyan-11": isCurrentPage,
                               "hover:text-slate-12":
                                 props.currentDocumentOpenSlug !== documentSlug,
-                            }
+                            },
                           )}
                           initial={{ x: -10 + -index * 1.5, opacity: 0 }}
                           transition={{
@@ -112,19 +110,29 @@ export const SidebarDirectoryChildren = (props: {
                             </motion.span>
                           ) : null}
                           <File
-                            className={clsx("absolute left-4 w-[20px] h-[20px] transition ease-in-out group-hover:text-foreground", isCurrentPage ? "text-emerald-600 group-hover:text-emerald-600 dark:text-emerald-500 dark:group-hover:text-emerald-500" : "text-muted-foreground")}
+                            className={clsx(
+                              "absolute left-4 w-[20px] h-[20px] transition ease-in-out group-hover:text-foreground",
+                              isCurrentPage
+                                ? "text-emerald-600 group-hover:text-emerald-600 dark:text-emerald-500 dark:group-hover:text-emerald-500"
+                                : "text-muted-foreground",
+                            )}
                             height="20"
                             width="20"
                           />
                           <span
-                            className={clsx("rounded-md truncate pl-8 font-medium transition ease-in-out group-hover:text-foreground", isCurrentPage ? "text-emerald-600 group-hover:text-emerald-600 dark:text-emerald-500 dark:group-hover:text-emerald-500" : "text-muted-foreground")}
+                            className={clsx(
+                              "rounded-md truncate pl-8 font-medium transition ease-in-out group-hover:text-foreground",
+                              isCurrentPage
+                                ? "text-emerald-600 group-hover:text-emerald-600 dark:text-emerald-500 dark:group-hover:text-emerald-500"
+                                : "text-muted-foreground",
+                            )}
                           >
                             {documentFilename}
                           </span>
                         </motion.span>
                       </Link>
                     );
-                  }
+                  },
                 )}
               </LayoutGroup>
             </div>

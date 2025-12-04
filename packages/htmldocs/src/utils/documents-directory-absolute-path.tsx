@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 export const documentsDirRelativePath =
-  process.env.NEXT_PUBLIC_DOCUMENTS_DIR_RELATIVE_PATH ?? 'documents';
+  process.env.NEXT_PUBLIC_DOCUMENTS_DIR_RELATIVE_PATH ?? "documents";
 
 export const userProjectLocation =
   process.env.NEXT_PUBLIC_USER_PROJECT_LOCATION!;
@@ -8,8 +8,8 @@ export const userProjectLocation =
 // this trickery to find the path separator for the OS is for this to work both on the client
 // and on the server properly
 export const pathSeparator = process.env.NEXT_PUBLIC_OS_PATH_SEPARATOR! as
-  | '/'
-  | '\\';
+  | "/"
+  | "\\";
 
 export const normalizePath = (path: string) => {
   let newPath = path;
@@ -29,4 +29,5 @@ export const normalizePath = (path: string) => {
   return newPath;
 };
 
-export const documentsDirectoryAbsolutePath = process.env.DOCUMENTS_DIR_ABSOLUTE_PATH!;
+export const documentsDirectoryAbsolutePath =
+  process.env.DOCUMENTS_DIR_ABSOLUTE_PATH!;

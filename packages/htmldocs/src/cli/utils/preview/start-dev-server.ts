@@ -1,16 +1,16 @@
-import path from 'node:path';
-import http from 'node:http';
-import url from 'node:url';
-import next from 'next';
-import ora from 'ora';
-import logSymbols from 'log-symbols';
-import chalk from 'chalk';
-import packageJson from '../../../../package.json';
-import { closeOraOnSIGINT } from '../close-ora-on-sigint';
-import { serveStaticFile } from './serve-static-file';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-import { disposeAllBuildContexts } from '../../../utils/get-document-component';
+import path from "node:path";
+import http from "node:http";
+import url from "node:url";
+import next from "next";
+import ora from "ora";
+import logSymbols from "log-symbols";
+import chalk from "chalk";
+import packageJson from "../../../../package.json";
+import { closeOraOnSIGINT } from "../close-ora-on-sigint";
+import { serveStaticFile } from "./serve-static-file";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import { disposeAllBuildContexts } from "../../../utils/get-document-component";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,21 +23,23 @@ const safeAsyncServerListen = (server: http.Server, port: number) => {
       resolve({ portAlreadyInUse: false });
     });
 
-    server.on('error', (e: NodeJS.ErrnoException) => {
-      if (e.code === 'EADDRINUSE') {
+    server.on("error", (e: NodeJS.ErrnoException) => {
+      if (e.code === "EADDRINUSE") {
         resolve({ portAlreadyInUse: true });
       }
     });
   });
 };
 
-export const isRunningBuilt = __filename.endsWith(path.join('cli', 'index.mjs'));
+export const isRunningBuilt = __filename.endsWith(
+  path.join("cli", "index.mjs"),
+);
 export const cliPackageLocation = isRunningBuilt
-  ? path.resolve(__dirname, '../')
-  : path.resolve(__dirname, '../../../..');
+  ? path.resolve(__dirname, "../")
+  : path.resolve(__dirname, "../../../..");
 export const previewServerLocation = isRunningBuilt
-  ? path.resolve(__dirname, '../preview')
-  : path.resolve(__dirname, '../../../..');
+  ? path.resolve(__dirname, "../preview")
+  : path.resolve(__dirname, "../../../..");
 
 export const startDevServer = async (
   documentsDirRelativePath: string,
@@ -54,28 +56,28 @@ export const startDevServer = async (
 
     // Never cache anything to avoid
     res.setHeader(
-      'Cache-Control',
-      'no-cache, max-age=0, must-revalidate, no-store',
+      "Cache-Control",
+      "no-cache, max-age=0, must-revalidate, no-store",
     );
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '-1');
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "-1");
 
     try {
       if (
         parsedUrl.path &&
-        parsedUrl.path.includes('static/') &&
-        !parsedUrl.path.includes('_next/static/')
+        parsedUrl.path.includes("static/") &&
+        !parsedUrl.path.includes("_next/static/")
       ) {
         void serveStaticFile(res, parsedUrl, staticBaseDirRelativePath);
       } else if (!isNextReady) {
-        void nextReadyPromise.then(
-          () => nextHandleRequest?.(req, res, parsedUrl),
+        void nextReadyPromise.then(() =>
+          nextHandleRequest?.(req, res, parsedUrl),
         );
       } else {
         void nextHandleRequest?.(req, res, parsedUrl);
       }
     } catch (e) {
-      console.error('caught error', e);
+      console.error("caught error", e);
 
       res.writeHead(500);
       res.end();
@@ -101,11 +103,11 @@ export const startDevServer = async (
     );
   }
 
-  devServer.on('close', async () => {
+  devServer.on("close", async () => {
     await app.close();
   });
 
-  devServer.on('error', (e: NodeJS.ErrnoException) => {
+  devServer.on("error", (e: NodeJS.ErrnoException) => {
     console.error(
       ` ${logSymbols.error} preview server error: `,
       JSON.stringify(e),
@@ -114,8 +116,8 @@ export const startDevServer = async (
   });
 
   const spinner = ora({
-    text: 'Getting htmldocs preview server ready...\n',
-    prefixText: ' ',
+    text: "Getting htmldocs preview server ready...\n",
+    prefixText: " ",
   }).start();
 
   closeOraOnSIGINT(spinner);
@@ -124,7 +126,7 @@ export const startDevServer = async (
   const app = next({
     // passing in env here does not get the environment variables there
     dev: !isRunningBuilt,
-    hostname: 'localhost',
+    hostname: "localhost",
     port,
     dir: previewServerLocation,
   });
@@ -159,8 +161,8 @@ const makeExitHandler =
       | { shouldKillProcess: true; killWithErrorCode: boolean },
   ) =>
   async (_codeOrSignal: number | NodeJS.Signals) => {
-    if (typeof devServer !== 'undefined') {
-      console.log('\nshutting down dev server');
+    if (typeof devServer !== "undefined") {
+      console.log("\nshutting down dev server");
       devServer.close();
       devServer = undefined;
     }
@@ -169,7 +171,7 @@ const makeExitHandler =
     try {
       await disposeAllBuildContexts();
     } catch (error) {
-      console.error('Error disposing build contexts:', error);
+      console.error("Error disposing build contexts:", error);
     }
 
     if (options?.shouldKillProcess) {
@@ -178,21 +180,21 @@ const makeExitHandler =
   };
 
 // // do something when app is closing
-process.on('exit', makeExitHandler());
+process.on("exit", makeExitHandler());
 
 // // catches ctrl+c event
 process.on(
-  'SIGINT',
+  "SIGINT",
   makeExitHandler({ shouldKillProcess: true, killWithErrorCode: false }),
 );
 
 // //  catches "kill pid" (for example: nodemon restart)
 process.on(
-  'SIGUSR1',
+  "SIGUSR1",
   makeExitHandler({ shouldKillProcess: true, killWithErrorCode: false }),
 );
 process.on(
-  'SIGUSR2',
+  "SIGUSR2",
   makeExitHandler({ shouldKillProcess: true, killWithErrorCode: false }),
 );
 

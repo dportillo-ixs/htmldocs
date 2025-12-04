@@ -1,13 +1,13 @@
-import { traverse } from '@babel/core';
-import { parse } from '@babel/parser';
+import { traverse } from "@babel/core";
+import { parse } from "@babel/parser";
 
 export const getImportedModules = (contents: string) => {
   const importedPaths: string[] = [];
   const parsedContents = parse(contents, {
-    sourceType: 'unambiguous',
+    sourceType: "unambiguous",
     strictMode: false,
     errorRecovery: true,
-    plugins: ['jsx', 'typescript'],
+    plugins: ["jsx", "typescript"],
   });
 
   traverse(parsedContents, {
@@ -23,10 +23,10 @@ export const getImportedModules = (contents: string) => {
       }
     },
     CallExpression({ node }) {
-      if ('name' in node.callee && node.callee.name === 'require') {
+      if ("name" in node.callee && node.callee.name === "require") {
         if (node.arguments.length === 1) {
           const importPathNode = node.arguments[0]!;
-          if (importPathNode!.type === 'StringLiteral') {
+          if (importPathNode!.type === "StringLiteral") {
             importedPaths.push(importPathNode.value);
           }
         }
