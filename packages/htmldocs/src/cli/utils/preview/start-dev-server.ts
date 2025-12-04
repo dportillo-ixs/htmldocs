@@ -10,6 +10,7 @@ import { closeOraOnSIGINT } from '../close-ora-on-sigint';
 import { serveStaticFile } from './serve-static-file';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { disposeAllBuildContexts } from '../../../utils/get-document-component';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -157,11 +158,18 @@ const makeExitHandler =
       | { shouldKillProcess: false }
       | { shouldKillProcess: true; killWithErrorCode: boolean },
   ) =>
-  (_codeOrSignal: number | NodeJS.Signals) => {
+  async (_codeOrSignal: number | NodeJS.Signals) => {
     if (typeof devServer !== 'undefined') {
       console.log('\nshutting down dev server');
       devServer.close();
       devServer = undefined;
+    }
+
+    // Dispose all build contexts before exiting
+    try {
+      await disposeAllBuildContexts();
+    } catch (error) {
+      console.error('Error disposing build contexts:', error);
     }
 
     if (options?.shouldKillProcess) {

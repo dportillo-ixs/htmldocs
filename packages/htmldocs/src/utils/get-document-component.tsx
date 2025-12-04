@@ -30,6 +30,9 @@ const buildCache = new Map<string, {
 const MAX_CSS_CACHE_SIZE = 50;
 const cssCache = new Map<string, string>();
 
+// Build context cache for incremental rebuilds
+const buildContexts = new Map<string, es.BuildContext>();
+
 // Extract Tailwind classes from file content
 // Note: Only extracts from className (React/JSX standard), not class (HTML)
 const extractTailwindClasses = (content: string): string[] => {
@@ -115,59 +118,85 @@ export const getDocumentComponent = async (
   try {
     logger.debug('Starting esbuild');
     const buildStart = performance.now();
-    const buildData = await es.build({
-      entryPoints: [documentPath],
-      platform: "node",
-      bundle: true,
-      external: [
-        // Only Node.js built-in modules can be external
-        // because they're natively available in Node.js runtime
-        'fs',
-        'path',
-        'crypto',
-        'node:fs',
-        'node:path',
-        'node:crypto',
+    
+    // Get or create build context for incremental rebuilds
+    let buildContext = buildContexts.get(documentPath);
+    const isNewContext = !buildContext;
+    
+    if (!buildContext) {
+      logger.info('[esbuild] Creating new incremental build context');
+      
+      try {
+        buildContext = await es.context({
+          entryPoints: [documentPath],
+          platform: "node",
+          bundle: true,
+          external: [
+            // Only Node.js built-in modules can be external
+            // because they're natively available in Node.js runtime
+            'fs',
+            'path',
+            'crypto',
+            'node:fs',
+            'node:path',
+            'node:crypto',
+            
+            // All other dependencies MUST be bundled because
+            // they're not available in the createFakeContext() execution environment:
+            // - react ❌ (not available in VM context)
+            // - react-dom ❌ (not available in VM context)
+            // - react/jsx-runtime ❌ (not available in VM context)
+            // - react/jsx-dev-runtime ❌ (not available in VM context)
+            // - htmldocs-v2-react ❌ (not available in VM context)
+            // - htmldocs-v2-render ❌ (not available in VM context)
+          ],
+          minify: false,
+          write: false,
+          format: "cjs",
+          jsx: "automatic",
+          define: {
+            "process.env.NODE_ENV": '"development"',
+          },
+          plugins: [
+            htmldocsPlugin([documentPath], false),
+            // Only run PostCSS/Tailwind if no cached CSS
+            ...(cachedCss 
+              ? [] 
+              : [postCssPlugin({
+                  postcss: {
+                    plugins: [tailwindPlugin, autoprefixerPlugin],
+                  },
+                })]
+            ),
+          ],
+          loader: {
+            ".ts": "ts",
+            ".tsx": "tsx",
+            ".css": "css",
+          },
+          outdir: "stdout", // stub for esbuild, won't actually write to this folder
+          sourcemap: "external",
+        });
         
-        // All other dependencies MUST be bundled because
-        // they're not available in the createFakeContext() execution environment:
-        // - react ❌ (not available in VM context)
-        // - react-dom ❌ (not available in VM context)
-        // - react/jsx-runtime ❌ (not available in VM context)
-        // - react/jsx-dev-runtime ❌ (not available in VM context)
-        // - htmldocs-v2-react ❌ (not available in VM context)
-        // - htmldocs-v2-render ❌ (not available in VM context)
-      ],
-      minify: false,
-      write: false,
-      format: "cjs",
-      jsx: "automatic",
-      define: {
-        "process.env.NODE_ENV": '"development"',
-      },
-      plugins: [
-        htmldocsPlugin([documentPath], false),
-        // Only run PostCSS/Tailwind if no cached CSS
-        ...(cachedCss 
-          ? [] 
-          : [postCssPlugin({
-              postcss: {
-                plugins: [tailwindPlugin, autoprefixerPlugin],
-              },
-            })]
-        ),
-      ],
-      loader: {
-        ".ts": "ts",
-        ".tsx": "tsx",
-        ".css": "css",
-      },
-      outdir: "stdout", // stub for esbuild, won't actually write to this folder
-      sourcemap: "external",
-    });
+        buildContexts.set(documentPath, buildContext);
+      } catch (contextError) {
+        logger.error('[esbuild] Failed to create build context:', contextError);
+        throw contextError; // Re-throw to be handled by outer catch block
+      }
+    } else {
+      logger.info('[esbuild] Reusing incremental build context');
+    }
+    
+    // Use incremental rebuild
+    const buildData = await buildContext.rebuild();
     const buildTime = performance.now() - buildStart;
     logger.debug('esbuild completed');
-    logger.debug(`[getDocumentComponent] Build completed in ${buildTime.toFixed(2)}ms`);
+    logger.info(`[esbuild] ${isNewContext ? 'Initial build' : 'Incremental rebuild'} completed in ${buildTime.toFixed(2)}ms`);
+    logger.info(`[esbuild] Contexts in memory: ${buildContexts.size}`);
+    
+    if (!buildData.outputFiles) {
+      throw new Error('Build produced no output files');
+    }
     
     outputFiles = buildData.outputFiles;
   } catch (exp) {
@@ -343,6 +372,32 @@ export const renderDocumentByPath = async (
     };
   }
 };
+
+// Export cleanup function for build contexts
+export async function disposeAllBuildContexts() {
+  logger.info(`[esbuild] Disposing ${buildContexts.size} build contexts`);
+  
+  for (const [path, context] of Array.from(buildContexts.entries())) {
+    try {
+      await context.dispose();
+      logger.info(`[esbuild] Disposed context for ${path}`);
+    } catch (error) {
+      logger.error(`[esbuild] Error disposing context for ${path}:`, error);
+    }
+  }
+  
+  buildContexts.clear();
+}
+
+// Optional: Dispose individual context when needed
+export async function disposeBuildContext(documentPath: string) {
+  const context = buildContexts.get(documentPath);
+  if (context) {
+    await context.dispose();
+    buildContexts.delete(documentPath);
+    logger.info(`[esbuild] Disposed context for ${documentPath}`);
+  }
+}
 
 // export const renderCSSBundle = async () => {
 //   const cssSrcPath = path.resolve(__dirname, "../src/css/index.css");
