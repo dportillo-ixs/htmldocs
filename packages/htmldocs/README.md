@@ -55,7 +55,7 @@ To change the customer details, all you need to do is render the `Invoice` compo
 To create your first htmldocs project, run the following command:
 
 ```sh
-npx htmldocs@latest init
+npx htmldocs-v2@latest init
 ```
 
 For further instructions or to integrate htmldocs into your existing project, refer to the [Getting Started](https://docs.htmldocs.com/getting-started) guide.

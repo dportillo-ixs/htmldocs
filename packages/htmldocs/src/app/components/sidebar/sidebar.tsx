@@ -53,7 +53,7 @@ const useVersionCheck = () => {
     const checkVersion = async () => {
       try {
         const response = await fetch(
-          "https://registry.npmjs.org/htmldocs/latest",
+          "https://registry.npmjs.org/htmldocs-v2/latest",
         );
         const data = await response.json();
         const latestVersion = data.version;
