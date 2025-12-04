@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { Shell } from "~/components/shell";
 import path from "path";

@@ -10,7 +10,7 @@ const intl = createIntl(
     locale: "en-US",
     messages: {},
   },
-  cache
+  cache,
 );
 
 const tableHeaderStyle =
@@ -57,7 +57,7 @@ function Invoice({ billedTo, yourCompany, services }: InvoiceProps) {
   });
   // 7 days from now
   const dueDate = new Date(
-    Date.now() + 7 * 24 * 60 * 60 * 1000
+    Date.now() + 7 * 24 * 60 * 60 * 1000,
   ).toLocaleDateString("en-US", {
     day: "2-digit",
     month: "short",
@@ -66,7 +66,7 @@ function Invoice({ billedTo, yourCompany, services }: InvoiceProps) {
 
   const subtotal = services.reduce(
     (acc, service) => acc + service.quantity * service.rate,
-    0
+    0,
   );
   const taxRate = 0.12;
   const tax = subtotal * taxRate;
@@ -328,6 +328,6 @@ Invoice.PreviewProps = {
   ],
 };
 
-Invoice.documentId = "invoice"
+Invoice.documentId = "invoice";
 
 export default Invoice;

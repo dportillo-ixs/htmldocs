@@ -1,4 +1,4 @@
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 const LOG_LEVELS: Record<LogLevel, number> = {
   debug: 0,
@@ -13,7 +13,7 @@ class Logger {
 
   private constructor() {
     // Default to 'info' if not set
-    this.currentLevel = (process.env.LOG_LEVEL as LogLevel) || 'info';
+    this.currentLevel = (process.env.LOG_LEVEL as LogLevel) || "info";
   }
 
   public static getInstance(): Logger {
@@ -37,28 +37,28 @@ class Logger {
   }
 
   public debug(...args: any[]): void {
-    if (!this.shouldLog('debug')) {
+    if (!this.shouldLog("debug")) {
       return;
     }
     console.debug(...args);
   }
 
   public info(...args: any[]): void {
-    if (!this.shouldLog('info')) {
+    if (!this.shouldLog("info")) {
       return;
     }
     console.info(...args);
   }
 
   public warn(...args: any[]): void {
-    if (!this.shouldLog('warn')) {
+    if (!this.shouldLog("warn")) {
       return;
     }
     console.warn(...args);
   }
 
   public error(...args: any[]): void {
-    if (!this.shouldLog('error')) {
+    if (!this.shouldLog("error")) {
       return;
     }
     console.error(...args);
@@ -68,4 +68,3 @@ class Logger {
 // Export a singleton instance
 const logger = Logger.getInstance();
 export default logger;
-

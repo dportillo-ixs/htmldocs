@@ -20,13 +20,13 @@ const Preview = ({
 
   const renderingResult = useDocumentRenderingResult(
     documentPath,
-    initialRenderingResult
+    initialRenderingResult,
   );
 
   const renderedDocumentMetadata = useRenderingMetadata(
     documentPath,
     renderingResult,
-    initialRenderingResult
+    initialRenderingResult,
   );
 
   return (
@@ -42,4 +42,3 @@ const Preview = ({
 };
 
 export default Preview;
-

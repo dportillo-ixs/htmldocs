@@ -46,12 +46,12 @@ function Letter({
 }: LetterProps) {
   // Process content to handle paragraphs and bullet points
   const processContent = (content: string) => {
-    const paragraphs = content.split('\n\n').filter(p => p.trim());
-    
+    const paragraphs = content.split("\n\n").filter((p) => p.trim());
+
     return paragraphs.map((paragraph, index) => {
       // Check if paragraph contains bullet points
-      if (paragraph.includes('•')) {
-        const [introText, ...listItems] = paragraph.split('\n');
+      if (paragraph.includes("•")) {
+        const [introText, ...listItems] = paragraph.split("\n");
         return (
           <div key={index} className="mb-4">
             {introText && <p className="mb-2">{introText.trim()}</p>}
@@ -59,14 +59,14 @@ function Letter({
               {listItems.map((item, i) => (
                 <li key={i} className="flex items-start">
                   <span className="mr-2 text-gray-600">•</span>
-                  <span>{item.replace('•', '').trim()}</span>
+                  <span>{item.replace("•", "").trim()}</span>
                 </li>
               ))}
             </ul>
           </div>
         );
       }
-      
+
       return (
         <p key={index} className="mb-4 leading-relaxed">
           {paragraph}
@@ -78,15 +78,18 @@ function Letter({
   return (
     <Document size="A4" orientation="portrait" margin="0.25in">
       <Head>
-        <link href="https://fonts.cdnfonts.com/css/cmu-serif" rel="stylesheet" />
+        <link
+          href="https://fonts.cdnfonts.com/css/cmu-serif"
+          rel="stylesheet"
+        />
       </Head>
-      <Page className="p-16 text-sm flex flex-col" style={{ fontFamily: "CMU Serif" }}>
+      <Page
+        className="p-16 text-sm flex flex-col"
+        style={{ fontFamily: "CMU Serif" }}
+      >
         {/* Header with Logo and Company Info */}
         <div className="flex justify-between items-start mb-12">
-          <img 
-            src="/static/techflow.svg" 
-            className="w-64 h-auto mt-2"
-          />
+          <img src="/static/techflow.svg" className="w-64 h-auto mt-2" />
           <div className="text-right text-gray-700">
             <div>{sender.address}</div>
             <div>{sender.city}</div>
@@ -120,19 +123,13 @@ function Letter({
         </div>
 
         {/* Subject Line */}
-        <div className="font-semibold mb-4">
-          Subject: {subject}
-        </div>
+        <div className="font-semibold mb-4">Subject: {subject}</div>
 
         {/* Salutation */}
-        <div className="mb-4">
-          Dear {recipient.name},
-        </div>
+        <div className="mb-4">Dear {recipient.name},</div>
 
         {/* Content with proper paragraph and list spacing */}
-        <div className="mb-8">
-          {processContent(content)}
-        </div>
+        <div className="mb-8">{processContent(content)}</div>
 
         <Spacer height="auto" className="flex-1" />
 
@@ -157,18 +154,18 @@ Letter.PreviewProps = {
     city: "San Francisco, CA 94105",
     phone: "(415) 555-0123",
     email: "info@techflow.com",
-    website: "www.techflow.com"
+    website: "www.techflow.com",
   },
   senderContact: {
     name: "Michael Chen",
-    title: "Director of Enterprise Partnerships"
+    title: "Director of Enterprise Partnerships",
   },
   recipient: {
     name: "Sarah Williams",
     title: "Chief Technology Officer",
     company: "GlobalCorp Enterprises",
     address: "200 Innovation Drive",
-    city: "Boston, MA 02110"
+    city: "Boston, MA 02110",
   },
   date: "April 4, 2024",
   subject: "Enterprise Software Solution Proposal - Cloud Migration Services",
@@ -181,7 +178,7 @@ The detailed proposal document and pricing structure are attached for your revie
 We would welcome the opportunity to discuss this proposal in detail at your convenience. I will follow up with your office next week to schedule a meeting with your team.
 
 Thank you for considering TechFlow Solutions as your technology partner. We look forward to the possibility of contributing to GlobalCorp's digital transformation journey.`,
-  closing: "Best regards"
+  closing: "Best regards",
 };
 
 Letter.documentId = "letter";

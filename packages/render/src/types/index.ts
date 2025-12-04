@@ -9,7 +9,9 @@ export interface RenderedDocumentMetadata {
   reactMarkup: string;
 }
 
-export type DocumentRenderingResult = RenderedDocumentMetadata | { error: ErrorObject };
+export type DocumentRenderingResult =
+  | RenderedDocumentMetadata
+  | { error: ErrorObject };
 
 /**
  * An object that mimics the structure of the Error class,
@@ -22,4 +24,3 @@ export interface ErrorObject {
   cause: unknown;
   message: string;
 }
-  

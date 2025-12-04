@@ -1,7 +1,7 @@
-'use client';
-import { useEffect, useRef } from 'react';
-import { type Socket, io } from 'socket.io-client';
-import type { HotReloadChange } from '../../utils/types/hot-reload-change';
+"use client";
+import { useEffect, useRef } from "react";
+import { type Socket, io } from "socket.io-client";
+import type { HotReloadChange } from "../../utils/types/hot-reload-change";
 
 // Create a singleton socket instance
 let globalSocket: Socket | null = null;
@@ -19,14 +19,14 @@ export const useHotreload = (
       globalSocket = io();
     }
 
-    globalSocket.on('reload', (changes: HotReloadChange[]) => {
-      console.log('Reloading...');
+    globalSocket.on("reload", (changes: HotReloadChange[]) => {
+      console.log("Reloading...");
       void onShouldReload(changes);
     });
 
     return () => {
       // Only remove this specific listener, don't disconnect the socket
-      globalSocket?.off('reload');
+      globalSocket?.off("reload");
     };
   }, [onShouldReload]);
 };

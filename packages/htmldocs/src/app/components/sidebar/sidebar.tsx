@@ -1,27 +1,27 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import * as Collapsible from '@radix-ui/react-collapsible';
-import { cn } from '~/lib/utils';
-import { SidebarDirectoryChildren } from './sidebar-directory-children';
-import { useDocuments } from '~/contexts/documents';
-import { Logo } from '../logo';
-import ThemeToggle from '../theme-toggle';
-import { Button } from '../ui/button';
-import { X } from '@phosphor-icons/react';
-import { VERSION } from '~/lib/version';
+import * as React from "react";
+import * as Collapsible from "@radix-ui/react-collapsible";
+import { cn } from "~/lib/utils";
+import { SidebarDirectoryChildren } from "./sidebar-directory-children";
+import { useDocuments } from "~/contexts/documents";
+import { Logo } from "../logo";
+import ThemeToggle from "../theme-toggle";
+import { Button } from "../ui/button";
+import { X } from "@phosphor-icons/react";
+import { VERSION } from "~/lib/version";
 
 const VERSION_CHECK_INTERVAL = 1000 * 60 * 60 * 24; // Check once per day
 
 const compareVersions = (v1: string, v2: string): number => {
   // Split version string at '-' to separate main version from prerelease (if any)
-  const [main1, pre1] = v1.split('-');
-  const [main2, pre2] = v2.split('-');
-  
+  const [main1, pre1] = v1.split("-");
+  const [main2, pre2] = v2.split("-");
+
   // Split main version into major, minor, patch numbers
-  const parts1 = main1?.split('.').map(Number) ?? [];
-  const parts2 = main2?.split('.').map(Number) ?? [];
-  
+  const parts1 = main1?.split(".").map(Number) ?? [];
+  const parts2 = main2?.split(".").map(Number) ?? [];
+
   // Compare major, minor, and patch values
   for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
     const num1 = parts1[i] || 0;
@@ -30,7 +30,7 @@ const compareVersions = (v1: string, v2: string): number => {
       return num1 - num2;
     }
   }
-  
+
   // If the numeric (stable) parts are equal, handle prerelease parts.
   // A version without a prerelease is considered greater than one with a prerelease.
   if (pre1 && !pre2) {
@@ -42,7 +42,7 @@ const compareVersions = (v1: string, v2: string): number => {
     if (pre1 === pre2) return 0;
     return pre1 > pre2 ? 1 : -1;
   }
-  
+
   return 0;
 };
 
@@ -52,7 +52,9 @@ const useVersionCheck = () => {
   React.useEffect(() => {
     const checkVersion = async () => {
       try {
-        const response = await fetch('https://registry.npmjs.org/htmldocs/latest');
+        const response = await fetch(
+          "https://registry.npmjs.org/htmldocs-v2/latest",
+        );
         const data = await response.json();
         const latestVersion = data.version;
 
@@ -61,7 +63,7 @@ const useVersionCheck = () => {
           setNewVersion(latestVersion);
         }
       } catch (error) {
-        console.error('Failed to check for new version:', error);
+        console.error("Failed to check for new version:", error);
       }
     };
 
@@ -94,7 +96,7 @@ export const Sidebar = ({
 
   return (
     <aside
-      className={cn('border-r flex flex-col border-slate-6', className)}
+      className={cn("border-r flex flex-col border-slate-6", className)}
       style={{ ...style }}
     >
       <div className="p-4 h-[70px] w-full flex-shrink items-center justify-between hidden lg:flex">
@@ -117,9 +119,9 @@ export const Sidebar = ({
             <div>
               <p className="text-xs text-foreground">
                 New version (
-                <a 
-                  href="https://www.npmjs.com/package/htmldocs" 
-                  target="_blank" 
+                <a
+                  href="https://www.npmjs.com/package/htmldocs"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="hover:underline"
                 >

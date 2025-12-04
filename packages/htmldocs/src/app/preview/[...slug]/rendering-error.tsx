@@ -1,5 +1,5 @@
-'use client';
-import type { ErrorObject } from '../../../utils/types/error-object';
+"use client";
+import type { ErrorObject } from "../../../utils/types/error-object";
 
 export const RenderingError = (props: { error: ErrorObject }) => {
   return (

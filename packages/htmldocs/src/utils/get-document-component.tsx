@@ -16,72 +16,56 @@ import { htmldocsPlugin } from "./htmldocs-esbuild-plugin";
 import postCssPlugin from "esbuild-style-plugin";
 import { RawSourceMap } from "source-map-js";
 import logger from "~/lib/logger";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
 
 // Build cache to avoid rebuilding unchanged files
 const MAX_CACHE_SIZE = 50;
-const buildCache = new Map<string, {
-  documentComponent: any;
-  documentCss: string | undefined;
-  renderAsync: typeof renderAsync;
-  sourceMapToOriginalFile: RawSourceMap;
-}>();
+const buildCache = new Map<
+  string,
+  {
+    documentComponent: any;
+    documentCss: string | undefined;
+    renderAsync: typeof renderAsync;
+    sourceMapToOriginalFile: RawSourceMap;
+  }
+>();
 
 // CSS cache to avoid regenerating CSS for unchanged Tailwind classes
 const MAX_CSS_CACHE_SIZE = 50;
 const cssCache = new Map<string, string>();
 
-// Incremental build contexts cache for 8-12x faster hot reload
+// Build context cache for incremental rebuilds
 const buildContexts = new Map<string, es.BuildContext>();
-
-// Cleanup function for build contexts
-export const cleanupBuildContexts = async () => {
-  logger.debug(`[esbuild] Cleaning up ${buildContexts.size} build contexts`);
-  const contexts = Array.from(buildContexts.values());
-  const paths = Array.from(buildContexts.keys());
-  
-  for (let i = 0; i < contexts.length; i++) {
-    try {
-      const context = contexts[i];
-      if (context) {
-        await context.dispose();
-      }
-    } catch (error) {
-      logger.debug(`[esbuild] Error disposing context for ${paths[i]}:`, error);
-    }
-  }
-  buildContexts.clear();
-};
 
 // Extract Tailwind classes from file content
 // Note: Only extracts from className (React/JSX standard), not class (HTML)
 const extractTailwindClasses = (content: string): string[] => {
   const classPattern = /className=["']([^"']+)["']/g;
   const classes: Set<string> = new Set();
-  
+
   let match;
   while ((match = classPattern.exec(content)) !== null) {
     const classNames = match[1].split(/\s+/);
-    classNames.forEach(cls => {
+    classNames.forEach((cls) => {
       if (cls.trim()) classes.add(cls.trim());
     });
   }
-  
+
   return Array.from(classes).sort();
 };
 
 // Generate hash from classes
 // Note: Using MD5 for performance - this is a cache key, not for security
 const generateCssHash = (classes: string[]): string => {
-  const classesString = classes.join(' ');
-  return crypto.createHash('md5').update(classesString).digest('hex');
+  const classesString = classes.join(" ");
+  return crypto.createHash("md5").update(classesString).digest("hex");
 };
 
-// Cache PostCSS plugins to avoid repeated module resolution
-const tailwindPlugin = require("tailwindcss");
-const autoprefixerPlugin = require("autoprefixer");
+// PostCSS plugins are imported at the top of the file
 
 export const getDocumentComponent = async (
-  documentPath: string
+  documentPath: string,
 ): Promise<
   | {
       documentComponent: any;
@@ -94,19 +78,23 @@ export const getDocumentComponent = async (
 > => {
   logger.debug(`[getDocumentComponent] Starting build for: ${documentPath}`);
   const startTime = performance.now();
-  
+
   // Check cache based on file content hash
   let fileContent: string | undefined;
   let hash: string | undefined;
   try {
-    fileContent = await fs.promises.readFile(documentPath, 'utf-8');
-    hash = crypto.createHash('md5').update(fileContent).digest('hex');
-    
+    fileContent = await fs.promises.readFile(documentPath, "utf-8");
+    hash = crypto.createHash("md5").update(fileContent).digest("hex");
+
     if (buildCache.has(hash)) {
-      logger.debug(`[getDocumentComponent] Using cached build for ${documentPath}`);
+      logger.debug(
+        `[getDocumentComponent] Using cached build for ${documentPath}`,
+      );
       const cachedResult = buildCache.get(hash)!;
       const totalTime = performance.now() - startTime;
-      logger.debug(`[getDocumentComponent] Cache hit in ${totalTime.toFixed(2)}ms`);
+      logger.debug(
+        `[getDocumentComponent] Cache hit in ${totalTime.toFixed(2)}ms`,
+      );
       return {
         ...cachedResult,
         fileHash: hash,
@@ -114,136 +102,122 @@ export const getDocumentComponent = async (
     }
   } catch (cacheError) {
     // If cache check fails, continue with normal build
-    logger.debug(`[getDocumentComponent] Cache check failed, proceeding with build`);
+    logger.debug(
+      `[getDocumentComponent] Cache check failed, proceeding with build`,
+    );
   }
-  
+
   // Check CSS cache based on Tailwind classes
   let cachedCss: string | undefined;
   let cssHash: string | undefined;
-  
+
   if (fileContent) {
     const tailwindClasses = extractTailwindClasses(fileContent);
     cssHash = generateCssHash(tailwindClasses);
-    
+
     if (cssCache.has(cssHash)) {
       cachedCss = cssCache.get(cssHash);
-      logger.debug(`[CSS Cache] Hit for hash ${cssHash.substring(0, 8)} (${tailwindClasses.length} classes)`);
+      logger.debug(
+        `[CSS Cache] Hit for hash ${cssHash.substring(0, 8)} (${tailwindClasses.length} classes)`,
+      );
     } else {
-      logger.debug(`[CSS Cache] Miss for hash ${cssHash.substring(0, 8)} (${tailwindClasses.length} classes)`);
+      logger.debug(
+        `[CSS Cache] Miss for hash ${cssHash.substring(0, 8)} (${tailwindClasses.length} classes)`,
+      );
     }
   }
-  
+
   let outputFiles: OutputFile[];
   try {
-    logger.debug('Starting esbuild');
+    logger.debug("Starting esbuild");
     const buildStart = performance.now();
-    
-    // Check if we have an existing incremental build context for this document
-    let context = buildContexts.get(documentPath);
-    let buildData;
-    
-    if (context) {
-      // Reuse existing context for incremental rebuild (8-12x faster)
-      logger.debug('[esbuild] Reusing incremental build context');
+
+    // Get or create build context for incremental rebuilds
+    let buildContext = buildContexts.get(documentPath);
+    const isNewContext = !buildContext;
+
+    if (!buildContext) {
+      logger.info("[esbuild] Creating new incremental build context");
+
       try {
-        buildData = await context.rebuild();
-        const buildTime = performance.now() - buildStart;
-        logger.debug(`[esbuild] Incremental build completed in ${buildTime.toFixed(2)}ms ⚡`);
-        logger.debug(`[esbuild] Contexts in memory: ${buildContexts.size}`);
-      } catch (rebuildError) {
-        // If rebuild fails, dispose the invalid context and remove from cache
-        logger.debug('[esbuild] Incremental rebuild failed, disposing invalid context');
-        try {
-          await context.dispose();
-        } catch (disposeError) {
-          logger.debug('[esbuild] Error disposing context:', disposeError);
-        }
-        buildContexts.delete(documentPath);
-        // Re-throw to be caught by outer try-catch
-        throw rebuildError;
+        buildContext = await es.context({
+          entryPoints: [documentPath],
+          platform: "node",
+          bundle: true,
+          external: [
+            // Only Node.js built-in modules can be external
+            // because they're natively available in Node.js runtime
+            "fs",
+            "path",
+            "crypto",
+            "node:fs",
+            "node:path",
+            "node:crypto",
+
+            // All other dependencies MUST be bundled because
+            // they're not available in the createFakeContext() execution environment:
+            // - react ❌ (not available in VM context)
+            // - react-dom ❌ (not available in VM context)
+            // - react/jsx-runtime ❌ (not available in VM context)
+            // - react/jsx-dev-runtime ❌ (not available in VM context)
+            // - htmldocs-v2-react ❌ (not available in VM context)
+            // - htmldocs-v2-render ❌ (not available in VM context)
+          ],
+          minify: false,
+          write: false,
+          format: "cjs",
+          jsx: "automatic",
+          define: {
+            "process.env.NODE_ENV": '"development"',
+          },
+          plugins: [
+            htmldocsPlugin([documentPath], false),
+            // Only run PostCSS/Tailwind if no cached CSS
+            ...(cachedCss
+              ? []
+              : [
+                  postCssPlugin({
+                    postcss: {
+                      plugins: [tailwindcss, autoprefixer],
+                    },
+                  }),
+                ]),
+          ],
+          loader: {
+            ".ts": "ts",
+            ".tsx": "tsx",
+            ".css": "css",
+          },
+          outdir: "stdout", // stub for esbuild, won't actually write to this folder
+          sourcemap: "external",
+        });
+
+        buildContexts.set(documentPath, buildContext);
+      } catch (contextError) {
+        logger.error("[esbuild] Failed to create build context:", contextError);
+        throw contextError; // Re-throw to be handled by outer catch block
       }
     } else {
-      // Create new incremental build context (first time for this document)
-      logger.debug('[esbuild] Creating new incremental build context');
-      context = await es.context({
-        entryPoints: [documentPath],
-        platform: "node",
-        bundle: true,
-        external: [
-          // Only Node.js built-in modules can be external
-          // because they're natively available in Node.js runtime
-          'fs',
-          'path',
-          'crypto',
-          'node:fs',
-          'node:path',
-          'node:crypto',
-          
-          // All other dependencies MUST be bundled because
-          // they're not available in the createFakeContext() execution environment:
-          // - react ❌ (not available in VM context)
-          // - react-dom ❌ (not available in VM context)
-          // - react/jsx-runtime ❌ (not available in VM context)
-          // - react/jsx-dev-runtime ❌ (not available in VM context)
-          // - htmldocs-v2-react ❌ (not available in VM context)
-          // - htmldocs-v2-render ❌ (not available in VM context)
-        ],
-        minify: false,
-        write: false,
-        format: "cjs",
-        jsx: "automatic",
-        define: {
-          "process.env.NODE_ENV": '"development"',
-        },
-        plugins: [
-          htmldocsPlugin([documentPath], false),
-          // Only run PostCSS/Tailwind if no cached CSS
-          ...(cachedCss 
-            ? [] 
-            : [postCssPlugin({
-                postcss: {
-                  plugins: [tailwindPlugin, autoprefixerPlugin],
-                },
-              })]
-          ),
-        ],
-        loader: {
-          ".ts": "ts",
-          ".tsx": "tsx",
-          ".css": "css",
-        },
-        outdir: "stdout", // stub for esbuild, won't actually write to this folder
-        sourcemap: "external",
-      });
-      
-      // Perform initial build
-      try {
-        buildData = await context.rebuild();
-        const buildTime = performance.now() - buildStart;
-        logger.debug(`[esbuild] Initial build completed in ${buildTime.toFixed(2)}ms`);
-        
-        // Only cache context after successful initial build
-        buildContexts.set(documentPath, context);
-        logger.debug(`[esbuild] Contexts in memory: ${buildContexts.size}`);
-      } catch (initialBuildError) {
-        // If initial build fails, dispose the context and don't cache it
-        logger.debug('[esbuild] Initial build failed, disposing context');
-        try {
-          await context.dispose();
-        } catch (disposeError) {
-          logger.debug('[esbuild] Error disposing context:', disposeError);
-        }
-        // Re-throw to be caught by outer try-catch
-        throw initialBuildError;
-      }
+      logger.info("[esbuild] Reusing incremental build context");
     }
-    
-    logger.debug('esbuild completed');
-    
+
+    // Use incremental rebuild
+    const buildData = await buildContext.rebuild();
+    const buildTime = performance.now() - buildStart;
+    logger.debug("esbuild completed");
+    logger.info(
+      `[esbuild] ${isNewContext ? "Initial build" : "Incremental rebuild"} completed in ${buildTime.toFixed(2)}ms`,
+    );
+    logger.info(`[esbuild] Contexts in memory: ${buildContexts.size}`);
+
+    if (!buildData.outputFiles) {
+      throw new Error("Build produced no output files");
+    }
+
     outputFiles = buildData.outputFiles;
   } catch (exp) {
     const buildFailure = exp as BuildFailure;
-    logger.error('[getDocumentComponent] Build failed:', {
+    logger.error("[getDocumentComponent] Build failed:", {
       error: {
         message: buildFailure.message,
         stack: buildFailure.stack,
@@ -257,34 +231,34 @@ export const getDocumentComponent = async (
         stack: buildFailure.stack || new Error().stack,
         name: buildFailure.name,
         cause: buildFailure.cause,
-      }
+      },
     };
   }
 
   try {
-    logger.debug('Starting post-build processing');
+    logger.debug("Starting post-build processing");
     const postBuildStart = performance.now();
-    
-    logger.debug('Extracting files');
+
+    logger.debug("Extracting files");
     const { sourceMapFile, bundledDocumentFile, cssFile } =
       extractOutputFiles(outputFiles);
-    logger.debug('Files extracted');
-    
+    logger.debug("Files extracted");
+
     const builtDocumentCode = bundledDocumentFile.text;
-    
+
     // Use cached CSS or extract from build
     let documentCss: string | undefined;
-    
+
     if (cachedCss) {
       documentCss = cachedCss;
-      logger.debug('[CSS Cache] Using cached CSS');
+      logger.debug("[CSS Cache] Using cached CSS");
     } else {
       documentCss = cssFile?.text;
-      
+
       // Cache for next time
       if (documentCss && cssHash) {
         cssCache.set(cssHash, documentCss);
-        
+
         // FIFO eviction
         if (cssCache.size > MAX_CSS_CACHE_SIZE) {
           const firstKey = cssCache.keys().next().value;
@@ -295,35 +269,42 @@ export const getDocumentComponent = async (
         logger.debug(`[CSS Cache] Stored with hash ${cssHash.substring(0, 8)}`);
       }
     }
-    
-    logger.debug('Creating context');
-    const fakeContext = createFakeContext(documentPath);
-    logger.debug('Context created');
-    
-    logger.debug('Configuring source map');
-    const sourceMapToDocument = configureSourceMap(sourceMapFile);
-    logger.debug('Source map configured');
 
-    logger.debug('Executing code');
+    logger.debug("Creating context");
+    const fakeContext = createFakeContext(documentPath);
+    logger.debug("Context created");
+
+    logger.debug("Configuring source map");
+    const sourceMapToDocument = configureSourceMap(sourceMapFile);
+    logger.debug("Source map configured");
+
+    logger.debug("Executing code");
     const executionResult = executeBuiltCode(
       builtDocumentCode,
       fakeContext,
       documentPath,
-      sourceMapToDocument
+      sourceMapToDocument,
     );
-    logger.debug('Code executed');
+    logger.debug("Code executed");
 
     const postBuildTime = performance.now() - postBuildStart;
-    logger.debug('Post-build completed');
-    logger.debug(`[getDocumentComponent] Post-build processing completed in ${postBuildTime.toFixed(2)}ms`);
+    logger.debug("Post-build completed");
+    logger.debug(
+      `[getDocumentComponent] Post-build processing completed in ${postBuildTime.toFixed(2)}ms`,
+    );
 
     if ("error" in executionResult) {
-      logger.error('[getDocumentComponent] Execution failed:', executionResult.error);
+      logger.error(
+        "[getDocumentComponent] Execution failed:",
+        executionResult.error,
+      );
       return { error: executionResult.error };
     }
 
     const totalTime = performance.now() - startTime;
-    logger.debug(`[getDocumentComponent] Total processing completed in ${totalTime.toFixed(2)}ms`);
+    logger.debug(
+      `[getDocumentComponent] Total processing completed in ${totalTime.toFixed(2)}ms`,
+    );
 
     const cacheableResult = {
       documentComponent: executionResult.DocumentComponent,
@@ -331,16 +312,16 @@ export const getDocumentComponent = async (
       renderAsync: executionResult.renderAsync,
       sourceMapToOriginalFile: sourceMapToDocument,
     };
-    
+
     const result = {
       ...cacheableResult,
       fileHash: hash!,
     };
-    
+
     // Cache the successful result using the hash computed earlier
     if (hash) {
       buildCache.set(hash, cacheableResult);
-      
+
       // Limit cache size to prevent memory leaks
       if (buildCache.size > MAX_CACHE_SIZE) {
         const firstKey = buildCache.keys().next().value;
@@ -353,7 +334,7 @@ export const getDocumentComponent = async (
 
     return result;
   } catch (error) {
-    logger.error('[getDocumentComponent] Processing error:', error);
+    logger.error("[getDocumentComponent] Processing error:", error);
     return {
       error: {
         message: error.message,
@@ -377,7 +358,7 @@ export type DocumentRenderingResult =
     };
 
 export const renderDocumentByPath = async (
-  documentPath: string
+  documentPath: string,
 ): Promise<DocumentRenderingResult> => {
   const result = await getDocumentComponent(documentPath);
 
@@ -409,11 +390,37 @@ export const renderDocumentByPath = async (
       error: improveErrorWithSourceMap(
         error,
         documentPath,
-        sourceMapToOriginalFile
+        sourceMapToOriginalFile,
       ),
     };
   }
 };
+
+// Export cleanup function for build contexts
+export async function disposeAllBuildContexts() {
+  logger.info(`[esbuild] Disposing ${buildContexts.size} build contexts`);
+
+  for (const [path, context] of Array.from(buildContexts.entries())) {
+    try {
+      await context.dispose();
+      logger.info(`[esbuild] Disposed context for ${path}`);
+    } catch (error) {
+      logger.error(`[esbuild] Error disposing context for ${path}:`, error);
+    }
+  }
+
+  buildContexts.clear();
+}
+
+// Optional: Dispose individual context when needed
+export async function disposeBuildContext(documentPath: string) {
+  const context = buildContexts.get(documentPath);
+  if (context) {
+    await context.dispose();
+    buildContexts.delete(documentPath);
+    logger.info(`[esbuild] Disposed context for ${documentPath}`);
+  }
+}
 
 // export const renderCSSBundle = async () => {
 //   const cssSrcPath = path.resolve(__dirname, "../src/css/index.css");

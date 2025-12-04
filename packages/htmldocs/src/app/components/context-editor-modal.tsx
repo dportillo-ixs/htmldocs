@@ -1,5 +1,11 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "~/components/ui/dialog";
+import React, { useState, useMemo, useEffect, useCallback } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Spinner, DownloadSimple, Asterisk } from "@phosphor-icons/react";
 import ContextEditor from "~/components/context-editor";
@@ -7,7 +13,7 @@ import { useDocumentContext } from "~/contexts/document-context";
 import { toast } from "sonner";
 import { renderDocumentByPath } from "~/actions/render-document-by-path";
 import { renderDocumentToPDF } from "~/actions/render-document-to-pdf";
-import { useDocuments } from '~/contexts/documents';
+import { useDocuments } from "~/contexts/documents";
 
 interface ContextEditorModalProps {
   documentSlug: string;
@@ -23,7 +29,8 @@ const ContextEditorModal: React.FC<ContextEditorModalProps> = ({
   onOpenChange,
 }) => {
   const { pageConfigs } = useDocuments();
-  const { documentSchema, documentContext, resetDocumentContext } = useDocumentContext();
+  const { documentSchema, documentContext, resetDocumentContext } =
+    useDocumentContext();
   const [generating, setGenerating] = useState(false);
 
   useEffect(() => {
@@ -32,24 +39,29 @@ const ContextEditorModal: React.FC<ContextEditorModalProps> = ({
 
   const isFormValid = useMemo(() => {
     if (!documentSchema || !documentSchema.properties) return true;
-    
+
     const checkRequiredFields = (schema: any, context: any): boolean => {
       if (!schema.properties) return true;
-      
+
       const requiredFields = schema.required || [];
       if (requiredFields.length === 0) return true;
-      
-      return requiredFields.every(field => {
+
+      return requiredFields.every((field) => {
         const fieldSchema = schema.properties[field];
         const value = context?.[field];
 
-        if (fieldSchema.type === 'object') {
+        if (fieldSchema.type === "object") {
           return checkRequiredFields(fieldSchema, value);
-        } else if (fieldSchema.type === 'array' && fieldSchema.items) {
-          return Array.isArray(value) && (value.length === 0 || 
-                 value.every(item => checkRequiredFields(fieldSchema.items, item)));
+        } else if (fieldSchema.type === "array" && fieldSchema.items) {
+          return (
+            Array.isArray(value) &&
+            (value.length === 0 ||
+              value.every((item) =>
+                checkRequiredFields(fieldSchema.items, item),
+              ))
+          );
         } else {
-          return value !== undefined && value !== null && value !== '';
+          return value !== undefined && value !== null && value !== "";
         }
       });
     };
@@ -63,18 +75,20 @@ const ContextEditorModal: React.FC<ContextEditorModalProps> = ({
       // First render the document to HTML
       const renderResult = await renderDocumentByPath(
         documentPath,
-        documentContext.document
+        documentContext.document,
       );
 
-      if ('error' in renderResult) {
-        throw new Error(`Failed to render document: ${renderResult.error.message}`);
+      if ("error" in renderResult) {
+        throw new Error(
+          `Failed to render document: ${renderResult.error.message}`,
+        );
       }
 
       // Then generate PDF from the rendered HTML
       const pdfBuffer = await renderDocumentToPDF({
         url: window.location.href,
         html: renderResult.markup,
-        pageConfig: pageConfigs[documentPath]
+        pageConfig: pageConfigs[documentPath],
       });
 
       if (pdfBuffer instanceof Error) {
@@ -84,25 +98,29 @@ const ContextEditorModal: React.FC<ContextEditorModalProps> = ({
       const buffer = new Uint8Array(pdfBuffer);
       const blob = new Blob([buffer], { type: "application/pdf" });
       const downloadUrl = window.URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
+
+      const link = document.createElement("a");
       link.href = downloadUrl;
-      link.download = `${documentSlug || 'document'}.pdf`;
+      link.download = `${documentSlug || "document"}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
-      
+
       setGenerating(false);
     } catch (error) {
-      console.error('Error generating document:', error);
+      console.error("Error generating document:", error);
       toast.error("Failed to generate the document. Please try again.");
       setGenerating(false);
     }
   };
 
   const handleResetFields = useCallback(() => {
-    if (window.confirm('Are you sure you want to reset all fields? This action cannot be undone.')) {
+    if (
+      window.confirm(
+        "Are you sure you want to reset all fields? This action cannot be undone.",
+      )
+    ) {
       resetDocumentContext();
     }
   }, [resetDocumentContext]);
@@ -117,9 +135,9 @@ const ContextEditorModal: React.FC<ContextEditorModalProps> = ({
           <div className="flex items-center justify-end bg-muted/50 -mx-6">
             <div className="px-6 py-2 text-sm text-muted-foreground">
               Want to generate documents via API?
-              <a 
-                href="https://htmldocs.com/signup" 
-                target="_blank" 
+              <a
+                href="https://htmldocs.com/signup"
+                target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary hover:underline ml-1"
               >
@@ -141,13 +159,13 @@ const ContextEditorModal: React.FC<ContextEditorModalProps> = ({
             indicates required field
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              onClick={handleResetFields}
-            >
+            <Button variant="secondary" onClick={handleResetFields}>
               Reset
             </Button>
-            <Button onClick={onGenerateDocument} disabled={generating || !isFormValid}>
+            <Button
+              onClick={onGenerateDocument}
+              disabled={generating || !isFormValid}
+            >
               {generating ? (
                 <>
                   <Spinner className="mr-2 h-4 w-4 animate-spin" />

@@ -1,11 +1,11 @@
-'use server';
-import path from 'node:path';
-import fs from 'node:fs';
-import { documentsDirectoryAbsolutePath } from '../../utils/documents-directory-absolute-path';
+"use server";
+import path from "node:path";
+import fs from "node:fs";
+import { documentsDirectoryAbsolutePath } from "../../utils/documents-directory-absolute-path";
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export const getDocumentPathFromSlug = async (slug: string) => {
-  if (['.tsx', '.jsx', '.ts', '.js'].includes(path.extname(slug)))
+  if ([".tsx", ".jsx", ".ts", ".js"].includes(path.extname(slug)))
     return path.join(documentsDirectoryAbsolutePath, slug);
 
   const pathWithoutExtension = path.join(documentsDirectoryAbsolutePath, slug);

@@ -1,12 +1,12 @@
-import type http from 'node:http';
-import path from 'node:path';
-import { watch } from 'chokidar';
-import debounce from 'debounce';
-import { type Socket, Server as SocketServer } from 'socket.io';
-import type { HotReloadChange } from '../../../../utils/types/hot-reload-change';
-import { createDependencyGraph } from './create-dependency-graph';
-import logger from '~/lib/logger';
-import chalk from 'chalk';
+import type http from "node:http";
+import path from "node:path";
+import { watch } from "chokidar";
+import debounce from "debounce";
+import { type Socket, Server as SocketServer } from "socket.io";
+import type { HotReloadChange } from "../../../../utils/types/hot-reload-change";
+import { createDependencyGraph } from "./create-dependency-graph";
+import logger from "~/lib/logger";
+import chalk from "chalk";
 
 export const setupHotreloading = async (
   devServer: http.Server,
@@ -15,10 +15,10 @@ export const setupHotreloading = async (
   let clients: Socket[] = [];
   const io = new SocketServer(devServer);
 
-  io.on('connection', (client) => {
+  io.on("connection", (client) => {
     clients.push(client);
 
-    client.on('disconnect', () => {
+    client.on("disconnect", () => {
       clients = clients.filter((item) => item !== client);
     });
   });
@@ -30,25 +30,28 @@ export const setupHotreloading = async (
   const reload = debounce(() => {
     // Filter out files starting with . and deduplicate changes based on filename and event type
     const uniqueChanges = changes
-      .filter(change => !path.basename(change.filename).startsWith('.'))
-      .filter((change, index, self) =>
-        index === self.findIndex((c) => 
-          c.filename === change.filename && c.event === change.event
-        )
+      .filter((change) => !path.basename(change.filename).startsWith("."))
+      .filter(
+        (change, index, self) =>
+          index ===
+          self.findIndex(
+            (c) => c.filename === change.filename && c.event === change.event,
+          ),
       );
 
     if (uniqueChanges.length > 0) {
-      logger.info(`${chalk.yellow('!')} ${chalk.gray(`Changes detected, reloading...`)}`);
-      
+      logger.info(
+        `${chalk.yellow("!")} ${chalk.gray(`Changes detected, reloading...`)}`,
+      );
+
       // Send changes to all clients
       clients.forEach((client) => {
         logger.debug(`Emitting reload to ${client.id}`);
-        client.emit('reload', uniqueChanges);
+        client.emit("reload", uniqueChanges);
       });
     }
 
     changes = [];
-
   }, 500);
 
   const absolutePathToDocumentsDirectory = path.resolve(
@@ -77,20 +80,20 @@ export const setupHotreloading = async (
 
   const getFilesOutsideDocumentsDirectory = () =>
     Object.keys(dependencyGraph).filter((p) =>
-      path.relative(absolutePathToDocumentsDirectory, p).startsWith('..'),
+      path.relative(absolutePathToDocumentsDirectory, p).startsWith(".."),
     );
   let filesOutsideDocumentsDirectory = getFilesOutsideDocumentsDirectory();
 
-  const watcher = watch('', {
+  const watcher = watch("", {
     ignoreInitial: true,
     cwd: absolutePathToDocumentsDirectory,
     ignored: [
-      '**/node_modules/**',
-      '**/.git/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/.next/**',
-      '**/coverage/**',
+      "**/node_modules/**",
+      "**/.git/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.next/**",
+      "**/coverage/**",
     ],
   });
 
@@ -103,10 +106,10 @@ export const setupHotreloading = async (
   const exit = async () => {
     await watcher.close();
   };
-  process.on('SIGINT', exit);
-  process.on('uncaughtException', exit);
+  process.on("SIGINT", exit);
+  process.on("uncaughtException", exit);
 
-  watcher.on('all', async (event, relativePathToChangeTarget) => {
+  watcher.on("all", async (event, relativePathToChangeTarget) => {
     const file = relativePathToChangeTarget.split(path.sep);
     if (file.length === 0) {
       return;
@@ -118,7 +121,8 @@ export const setupHotreloading = async (
 
     await updateDependencyGraph(event, pathToChangeTarget);
 
-    const newFilesOutsideDocumentsDirectory = getFilesOutsideDocumentsDirectory();
+    const newFilesOutsideDocumentsDirectory =
+      getFilesOutsideDocumentsDirectory();
     // updates the files outside of the user's documents directory by unwatching
     // the inexistant ones and watching the new ones
     //
@@ -145,8 +149,11 @@ export const setupHotreloading = async (
     // will be notified of this change so that we ensure that things are updated in the preview.
     for (const dependentPath of resolveDependentsOf(pathToChangeTarget)) {
       changes.push({
-        event: 'change' as const,
-        filename: path.relative(absolutePathToDocumentsDirectory, dependentPath),
+        event: "change" as const,
+        filename: path.relative(
+          absolutePathToDocumentsDirectory,
+          dependentPath,
+        ),
       });
     }
     reload();

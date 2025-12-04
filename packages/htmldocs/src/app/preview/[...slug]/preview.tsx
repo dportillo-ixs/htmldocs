@@ -1,19 +1,23 @@
-'use client';
+"use client";
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import React from 'react';
-import { Toaster } from 'sonner';
-import { useHotreload } from '~/hooks/use-hot-reload';
-import type { DocumentRenderingResult } from '~/actions/render-document-by-path';
-import { Shell } from '~/components/shell';
-import { useDocuments } from '~/contexts/documents';
-import { useRenderingMetadata } from '~/hooks/use-rendering-metadata';
-import { RenderingError } from './rendering-error';
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import React from "react";
+import { Toaster } from "sonner";
+import { useHotreload } from "~/hooks/use-hot-reload";
+import type { DocumentRenderingResult } from "~/actions/render-document-by-path";
+import { Shell } from "~/components/shell";
+import { useDocuments } from "~/contexts/documents";
+import { useRenderingMetadata } from "~/hooks/use-rendering-metadata";
+import { RenderingError } from "./rendering-error";
 import { DocumentSize } from "~/lib/types";
-import { DocumentContextProvider } from '~/contexts/document-context';
-import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
-import chalk from 'chalk';
-import { MagnifyingGlassPlus, MagnifyingGlassMinus, ArrowClockwise } from '@phosphor-icons/react';
+import { DocumentContextProvider } from "~/contexts/document-context";
+import { JSONSchema7, JSONSchema7Definition } from "json-schema";
+import chalk from "chalk";
+import {
+  MagnifyingGlassPlus,
+  MagnifyingGlassMinus,
+  ArrowClockwise,
+} from "@phosphor-icons/react";
 
 interface PreviewProps {
   slug: string;
@@ -34,8 +38,9 @@ const Preview = ({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const activeView = searchParams.get('view') ?? 'desktop';
-  const { useDocumentRenderingResult, setPageConfig, documentSchemas } = useDocuments();
+  const activeView = searchParams.get("view") ?? "desktop";
+  const { useDocumentRenderingResult, setPageConfig, documentSchemas } =
+    useDocuments();
 
   const renderingResult = useDocumentRenderingResult(
     documentPath,
@@ -50,7 +55,7 @@ const Preview = ({
     initialRenderingResult,
   );
 
-  const [activeIframeId, setActiveIframeId] = React.useState<string>('iframe1');
+  const [activeIframeId, setActiveIframeId] = React.useState<string>("iframe1");
   const [iframes, setIframes] = React.useState<{
     [key: string]: string | undefined;
   }>({
@@ -95,56 +100,61 @@ const Preview = ({
 
   const [nextIframeId, setNextIframeId] = React.useState<string | null>(null);
 
-  const handleMessage = React.useCallback((event: MessageEvent) => {
-    if (event.data.type === 'layoutComplete' && nextIframeId) {
-      console.debug("Received layoutComplete message:", {
-        documentSize: event.data.documentSize,
-        documentOrientation: event.data.documentOrientation,
-        timestamp: event.data.timestamp
-      });
+  const handleMessage = React.useCallback(
+    (event: MessageEvent) => {
+      if (event.data.type === "layoutComplete" && nextIframeId) {
+        console.debug("Received layoutComplete message:", {
+          documentSize: event.data.documentSize,
+          documentOrientation: event.data.documentOrientation,
+          timestamp: event.data.timestamp,
+        });
 
+        if (event.data.documentSize) {
+          // Validate that the size matches our DocumentSize type
+          const size = event.data.documentSize;
+          const standardSizes = ["A3", "A4", "A5", "letter", "legal"];
+          const sizeRegex = /^\d+(?:in|cm|mm|px)\s+\d+(?:in|cm|mm|px)$/;
 
-      if (event.data.documentSize) {
-        // Validate that the size matches our DocumentSize type
-        const size = event.data.documentSize;
-        const standardSizes = ["A3", "A4", "A5", "letter", "legal"];
-        const sizeRegex = /^\d+(?:in|cm|mm|px)\s+\d+(?:in|cm|mm|px)$/;
-        
-        if (standardSizes.includes(size) || sizeRegex.test(size)) {
-          const orientation = event.data.documentOrientation === 'landscape' ? 'landscape' : 'portrait';
-          
-          setPageConfig(documentPath, {
-            size: size as DocumentSize,
-            orientation
-          });
-        } else {
-          console.warn(`Invalid document size format: ${size}`);
+          if (standardSizes.includes(size) || sizeRegex.test(size)) {
+            const orientation =
+              event.data.documentOrientation === "landscape"
+                ? "landscape"
+                : "portrait";
+
+            setPageConfig(documentPath, {
+              size: size as DocumentSize,
+              orientation,
+            });
+          } else {
+            console.warn(`Invalid document size format: ${size}`);
+          }
         }
+
+        // Remove the previous iframe from state
+        setIframes((prev) => {
+          const updated = { ...prev };
+          delete updated[activeIframeId];
+          return updated;
+        });
+
+        // Update the active iframe ID
+        setActiveIframeId(nextIframeId);
+        setNextIframeId(null);
       }
-
-      // Remove the previous iframe from state
-      setIframes((prev) => {
-        const updated = { ...prev };
-        delete updated[activeIframeId];
-        return updated;
-      });
-
-      // Update the active iframe ID
-      setActiveIframeId(nextIframeId);
-      setNextIframeId(null);
-    }
-  }, [activeIframeId, nextIframeId, documentPath, setPageConfig]);
+    },
+    [activeIframeId, nextIframeId, documentPath, setPageConfig],
+  );
 
   React.useEffect(() => {
-    window.addEventListener('message', handleMessage);
+    window.addEventListener("message", handleMessage);
     console.debug("Message event listener added");
     return () => {
-      window.removeEventListener('message', handleMessage);
+      window.removeEventListener("message", handleMessage);
       console.debug("Message event listener removed");
     };
   }, [handleMessage]);
 
-  if (process.env.NEXT_PUBLIC_IS_BUILDING !== 'true') {
+  if (process.env.NEXT_PUBLIC_IS_BUILDING !== "true") {
     // this will not change on runtime so it doesn't violate
     // the rules of hooks
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -153,9 +163,9 @@ const Preview = ({
         change.filename.includes(slug),
       );
 
-      if (typeof changeForThisDocument !== 'undefined') {
-        if (changeForThisDocument.event === 'unlink') {
-          router.push('/');
+      if (typeof changeForThisDocument !== "undefined") {
+        if (changeForThisDocument.event === "unlink") {
+          router.push("/");
         }
       }
     });
@@ -163,18 +173,18 @@ const Preview = ({
 
   const handleViewChange = (view: string) => {
     const params = new URLSearchParams(searchParams);
-    params.set('view', view);
+    params.set("view", view);
     router.push(`${pathname}?${params.toString()}`);
   };
 
   const handleLangChange = (lang: string) => {
     const params = new URLSearchParams(searchParams);
-    params.set('view', 'source');
-    params.set('lang', lang);
+    params.set("view", "source");
+    params.set("lang", lang);
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const hasNoErrors = typeof renderedDocumentMetadata !== 'undefined';
+  const hasNoErrors = typeof renderedDocumentMetadata !== "undefined";
 
   const renderIframe = (id: string, isActive: boolean) => {
     const content = iframes[id];
@@ -185,8 +195,8 @@ const Preview = ({
         <iframe
           allow="same-origin"
           className={`absolute top-0 left-0 w-full h-[calc(100vh_-_70px)] print:h-[100vh] bg-white ${
-            isActive ? 'z-20 opacity-100' : 'z-10 opacity-0'
-          } ${activeView === 'mobile' ? 'w-[360px] mx-auto right-0' : ''}`}
+            isActive ? "z-20 opacity-100" : "z-10 opacity-0"
+          } ${activeView === "mobile" ? "w-[360px] mx-auto right-0" : ""}`}
           srcDoc={content}
           title={`${slug}-${id}`}
         />
@@ -194,16 +204,22 @@ const Preview = ({
     );
   };
 
-  const previewProps = 'previewProps' in renderingResult ? renderingResult.previewProps : {};
+  const previewProps =
+    "previewProps" in renderingResult ? renderingResult.previewProps : {};
 
   const handleZoom = (newZoom: number) => {
     setZoomLevel(newZoom);
-    const iframe = document.querySelector(`iframe[title="${slug}-${activeIframeId}"]`);
+    const iframe = document.querySelector(
+      `iframe[title="${slug}-${activeIframeId}"]`,
+    );
     if (iframe) {
-      (iframe as HTMLIFrameElement).contentWindow?.postMessage({
-        type: 'zoom',
-        level: newZoom
-      }, '*');
+      (iframe as HTMLIFrameElement).contentWindow?.postMessage(
+        {
+          type: "zoom",
+          level: newZoom,
+        },
+        "*",
+      );
     }
   };
 
@@ -249,24 +265,24 @@ const Preview = ({
         pathSeparator={pathSeparator}
         setActiveView={hasNoErrors ? handleViewChange : undefined}
       >
-          <div className="relative h-full">
-            {'error' in renderingResult ? (
-              <RenderingError error={renderingResult.error} />
-            ) : null}
+        <div className="relative h-full">
+          {"error" in renderingResult ? (
+            <RenderingError error={renderingResult.error} />
+          ) : null}
 
-            {hasNoErrors ? (
-              <div className="relative h-full">
-                {nextIframeId && (
-                  <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-loading-bar z-30" />
-                )}
-                {Object.keys(iframes).map((id) =>
-                  renderIframe(id, id === activeIframeId)
-                )}
-                <ZoomControls />
-              </div>
-            ) : null}
-            <Toaster richColors />
-          </div>
+          {hasNoErrors ? (
+            <div className="relative h-full">
+              {nextIframeId && (
+                <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-green-500 to-transparent animate-loading-bar z-30" />
+              )}
+              {Object.keys(iframes).map((id) =>
+                renderIframe(id, id === activeIframeId),
+              )}
+              <ZoomControls />
+            </div>
+          ) : null}
+          <Toaster richColors />
+        </div>
       </Shell>
     </DocumentContextProvider>
   );

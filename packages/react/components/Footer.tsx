@@ -1,6 +1,6 @@
-import React from 'react';
-import MarginBox, { MarginBoxPosition } from './MarginBox';
-import Head from './Head';
+import React from "react";
+import MarginBox, { MarginBoxPosition } from "./MarginBox";
+import Head from "./Head";
 
 interface FooterProps {
   /**
@@ -9,31 +9,33 @@ interface FooterProps {
    * - A function that receives current page and total pages
    * - A ReactNode for static content
    */
-  children?: ((params: { 
-    currentPage: React.ReactElement, 
-    totalPages: React.ReactElement 
-  }) => React.ReactNode) | React.ReactNode;
-  
+  children?:
+    | ((params: {
+        currentPage: React.ReactElement;
+        totalPages: React.ReactElement;
+      }) => React.ReactNode)
+    | React.ReactNode;
+
   /**
    * Footer position. Defaults to 'bottom-center'
    */
   position?: MarginBoxPosition;
-  
+
   /**
    * Whether to show footer on even/odd/blank pages
    */
-  pageType?: 'all' | 'even' | 'odd' | 'blank';
-  
+  pageType?: "all" | "even" | "odd" | "blank";
+
   /**
    * Custom CSS classes
    */
   className?: string;
-  
+
   /**
    * Custom styles
    */
   style?: React.CSSProperties;
-  
+
   /**
    * Optional styling for the position element
    */
@@ -46,16 +48,23 @@ export const Footer: React.FC<FooterProps> = ({
       Page {currentPage} of {totalPages}
     </span>
   ),
-  position = 'bottom-center',
-  pageType = 'all',
+  position = "bottom-center",
+  pageType = "all",
   className,
   style,
   marginBoxStyles,
 }) => {
   const footerStyles = `
-    ${style ? Object.entries(style).map(([key, value]) => 
-      `${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`
-    ).join('\n') : ''}
+    ${
+      style
+        ? Object.entries(style)
+            .map(
+              ([key, value]) =>
+                `${key.replace(/([A-Z])/g, "-$1").toLowerCase()}: ${value};`,
+            )
+            .join("\n")
+        : ""
+    }
     
     .page-counter::after {
       content: counter(page);
@@ -66,16 +75,14 @@ export const Footer: React.FC<FooterProps> = ({
     }
     
     .page-number {
-      display: ${typeof children === 'function' ? 'inline' : 'none'};
+      display: ${typeof children === "function" ? "inline" : "none"};
     }
   `;
 
   return (
     <>
       <Head>
-        <style>
-          {footerStyles}
-        </style>
+        <style>{footerStyles}</style>
       </Head>
       <MarginBox
         position={position}
@@ -84,10 +91,10 @@ export const Footer: React.FC<FooterProps> = ({
         marginBoxStyles={marginBoxStyles}
         runningName="print-footer"
       >
-        {typeof children === 'function' 
+        {typeof children === "function"
           ? children({
               currentPage: <span className="page-counter" />,
-              totalPages: <span className="pages-counter" />
+              totalPages: <span className="pages-counter" />,
             })
           : children}
       </MarginBox>

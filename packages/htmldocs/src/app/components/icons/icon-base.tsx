@@ -1,7 +1,7 @@
-import * as React from 'react';
+import * as React from "react";
 
-export type IconElement = React.ElementRef<'svg'>;
-export type RootProps = React.ComponentPropsWithoutRef<'svg'>;
+export type IconElement = React.ElementRef<"svg">;
+export type RootProps = React.ComponentPropsWithoutRef<"svg">;
 
 export interface IconProps extends RootProps {
   size?: number;
@@ -21,4 +21,4 @@ export const IconBase = React.forwardRef<IconElement, Readonly<IconProps>>(
   ),
 );
 
-IconBase.displayName = 'IconBase';
+IconBase.displayName = "IconBase";

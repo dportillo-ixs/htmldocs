@@ -33,7 +33,9 @@ export function createFakeContext(documentPath: string) {
     __dirname: path.dirname(documentPath),
     require: (module: string) => {
       if (module in staticNodeModulesForVM) {
-        return staticNodeModulesForVM[module as keyof typeof staticNodeModulesForVM];
+        return staticNodeModulesForVM[
+          module as keyof typeof staticNodeModulesForVM
+        ];
       }
       return require(module);
     },
@@ -67,7 +69,7 @@ export function configureSourceMap(sourceMapFile: OutputFile): RawSourceMap {
   const sourceMapToDocument = JSON.parse(sourceMapFile.text) as RawSourceMap;
   sourceMapToDocument.sourceRoot = path.resolve(sourceMapFile.path, "../..");
   sourceMapToDocument.sources = sourceMapToDocument.sources.map((source) =>
-    path.resolve(sourceMapFile.path, "..", source)
+    path.resolve(sourceMapFile.path, "..", source),
   );
   return sourceMapToDocument;
 }
@@ -76,22 +78,34 @@ export function executeBuiltCode(
   builtDocumentCode: string,
   fakeContext: any,
   documentPath: string,
-  sourceMapToDocument: RawSourceMap
-): { DocumentComponent: DocumentComponent; renderAsync: RenderAsyncFunction } | { error: ErrorObject } {
+  sourceMapToDocument: RawSourceMap,
+):
+  | { DocumentComponent: DocumentComponent; renderAsync: RenderAsyncFunction }
+  | { error: ErrorObject } {
   try {
-    vm.runInNewContext(builtDocumentCode, fakeContext, { filename: documentPath });
+    vm.runInNewContext(builtDocumentCode, fakeContext, {
+      filename: documentPath,
+    });
   } catch (exception) {
     const error = exception as Error;
     error.stack &&= error.stack.split("at Script.runInContext (node:vm")[0];
-    return { error: improveErrorWithSourceMap(error, documentPath, sourceMapToDocument) };
+    return {
+      error: improveErrorWithSourceMap(
+        error,
+        documentPath,
+        sourceMapToDocument,
+      ),
+    };
   }
 
   if (fakeContext.module.exports.default === undefined) {
     return {
       error: improveErrorWithSourceMap(
-        new Error(`The document component at ${documentPath} does not contain a default export`),
+        new Error(
+          `The document component at ${documentPath} does not contain a default export`,
+        ),
         documentPath,
-        sourceMapToDocument
+        sourceMapToDocument,
       ),
     };
   }

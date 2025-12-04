@@ -1,8 +1,13 @@
 import { defineConfig } from "tsup";
-import fs from 'fs';
-import path from 'path';
+import fs from "fs";
+import path from "path";
 
-const nodeModulesPath = path.join(__dirname, 'public', 'template', 'node_modules');
+const nodeModulesPath = path.join(
+  __dirname,
+  "public",
+  "template",
+  "node_modules",
+);
 
 if (fs.existsSync(nodeModulesPath)) {
   fs.rmSync(nodeModulesPath, { recursive: true, force: true });
@@ -19,7 +24,8 @@ export default defineConfig({
   },
   publicDir: true,
   define: {
-    "process.env.API_URL": JSON.stringify(process.env.API_URL || "https://htmldocs.com"),
+    "process.env.API_URL": JSON.stringify(
+      process.env.API_URL || "https://htmldocs.com",
+    ),
   },
 });
-

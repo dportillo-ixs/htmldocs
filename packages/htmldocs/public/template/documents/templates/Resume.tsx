@@ -1,5 +1,11 @@
 import { Document, Head, Page, Spacer } from "htmldocs-v2-react";
-import { FaPhone, FaEnvelope, FaGithub, FaLinkedin, FaMapMarkerAlt } from "react-icons/fa";
+import {
+  FaPhone,
+  FaEnvelope,
+  FaGithub,
+  FaLinkedin,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
 import "~/index.css";
 
 interface Education {
@@ -78,9 +84,15 @@ function Resume({
   return (
     <Document size="A4" orientation="portrait">
       <Head>
-        <link href="https://fonts.cdnfonts.com/css/cmu-serif" rel="stylesheet" />
+        <link
+          href="https://fonts.cdnfonts.com/css/cmu-serif"
+          rel="stylesheet"
+        />
       </Head>
-      <Page className="text-sm flex flex-col" style={{ fontFamily: "CMU Serif" }}>
+      <Page
+        className="text-sm flex flex-col"
+        style={{ fontFamily: "CMU Serif" }}
+      >
         {/* Header */}
         <div className="flex flex-col items-center justify-center">
           <h1 className="text-4xl font-semibold mb-1">{name}</h1>
@@ -95,9 +107,7 @@ function Resume({
             </div>
             <div className="flex items-center">
               <FaEnvelope className="w-4 h-4 mr-1" />
-              <a href={`mailto:${contact.email}`}>
-                {contact.email}
-              </a>
+              <a href={`mailto:${contact.email}`}>{contact.email}</a>
             </div>
             <div className="flex items-center">
               <FaLinkedin className="w-4 h-4 mr-1" />
@@ -120,7 +130,9 @@ function Resume({
         <section>
           <SectionHeader>Summary</SectionHeader>
           <p>
-            Technical leader with 12 years of experience as an engineering leader — see my work at <Link href="https://johndoe.com">johndoe.com</Link>.
+            Technical leader with 12 years of experience as an engineering
+            leader — see my work at{" "}
+            <Link href="https://johndoe.com">johndoe.com</Link>.
           </p>
         </section>
 
@@ -164,7 +176,10 @@ function Resume({
                 <span>{project.dateRange}</span>
               </div>
               <div className="flex">
-                <a href={project.githubUrl} className="hover:text-blue-600 flex items-center">
+                <a
+                  href={project.githubUrl}
+                  className="hover:text-blue-600 flex items-center"
+                >
                   <FaGithub className="w-4 h-4 mr-1" />
                   {project.githubUrl}
                 </a>
@@ -226,7 +241,8 @@ function Resume({
 
 Resume.PreviewProps = {
   name: "John Doe",
-  summary: "Technical leader with 12 years of experience in scalable applications and engineering leadership — see my work at jkuo.me.",
+  summary:
+    "Technical leader with 12 years of experience in scalable applications and engineering leadership — see my work at jkuo.me.",
   contact: {
     location: "San Francisco, CA",
     phone: "123-456-7890",
@@ -267,7 +283,7 @@ Resume.PreviewProps = {
       endDate: "Aug 2020",
       achievements: [
         "Worked with Swift and Objective-C to implement Guides in Apple Maps, supporting 10,000+ cities worldwide",
-        "Re-engineered the landing pages for the 16\" Macbook Pro and Apple Pay, improving initial load times by 42%",
+        'Re-engineered the landing pages for the 16" Macbook Pro and Apple Pay, improving initial load times by 42%',
         "Hosted a total of 7 interns across 2 years, with a 70% intern-to-fulltime conversion ratio",
       ],
     },
@@ -294,7 +310,14 @@ Resume.PreviewProps = {
   skills: {
     languages: ["TypeScript", "Python", "Ruby", "Go", "Java", "C++"],
     frameworks: ["React", "Redux", "Express", "Flask"],
-    technologies: ["AWS", "Redis", "MongoDB", "Docker", "PostgreSQL", "Kubernetes"],
+    technologies: [
+      "AWS",
+      "Redis",
+      "MongoDB",
+      "Docker",
+      "PostgreSQL",
+      "Kubernetes",
+    ],
   },
 };
 

@@ -40,7 +40,7 @@ export const Spacer: SpacerType = ({
     minWidth: getSpacerSize(width),
     height: getSpacerSize(height),
     minHeight: getSpacerSize(height),
-    display: display
+    display: display,
   };
 
   return <div style={style} {...rest} />;

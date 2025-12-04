@@ -33,18 +33,24 @@ export const publish = async (documentPath: string) => {
 
   logger.debug(`Found ${outputFiles.length} output files`);
   logger.debug("Writing output files...");
-  
+
   // Create document-specific directory
   await fs.mkdir(documentBuildDir, { recursive: true });
-  
+
   for (const outputFile of outputFiles) {
-    const filePath = path.join(documentBuildDir, path.basename(outputFile.path));
+    const filePath = path.join(
+      documentBuildDir,
+      path.basename(outputFile.path),
+    );
     await fs.writeFile(filePath, outputFile.contents);
     logger.debug(`Wrote file: ${filePath}`);
   }
   logger.debug("Finished writing output files");
 
-  const { documentId, defaultProps } = await getDocumentIdAndDefaultProps(documentPath, outputFiles);
+  const { documentId, defaultProps } = await getDocumentIdAndDefaultProps(
+    documentPath,
+    outputFiles,
+  );
   logger.debug(`Document ID: ${documentId}`);
 
   const zipPath = await zipDocumentFiles(documentBuildDir);
@@ -68,18 +74,21 @@ export const publish = async (documentPath: string) => {
 
   try {
     logger.debug("Sending upload request to server");
-    const response = await fetch(`${process.env.API_URL}/api/documents/upload`, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${api_key}`,
+    const response = await fetch(
+      `${process.env.API_URL}/api/documents/upload`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${api_key}`,
+        },
+        body: formData,
       },
-      body: formData,
-    });
+    );
 
     if (!response.ok) {
       logger.error(`Upload failed with status: ${response.status}`);
       spinner.fail(
-        chalk.red(`Failed to upload document: ${response.statusText}`)
+        chalk.red(`Failed to upload document: ${response.statusText}`),
       );
       return;
     }
@@ -90,8 +99,8 @@ export const publish = async (documentPath: string) => {
     logger.error("Error during upload:", error);
     spinner.fail(
       chalk.red(
-        "Could not connect to the server. Please check your internet connection and try again."
-      )
+        "Could not connect to the server. Please check your internet connection and try again.",
+      ),
     );
     return;
   }
@@ -99,8 +108,11 @@ export const publish = async (documentPath: string) => {
 
 const getDocumentIdAndDefaultProps = async (
   documentPath: string,
-  outputFiles: OutputFile[]
-): Promise<{ documentId: string | null; defaultProps: Record<string, any> }> => {
+  outputFiles: OutputFile[],
+): Promise<{
+  documentId: string | null;
+  defaultProps: Record<string, any>;
+}> => {
   logger.debug("Extracting document ID");
   const { sourceMapFile, bundledDocumentFile } =
     extractOutputFiles(outputFiles);
@@ -114,7 +126,7 @@ const getDocumentIdAndDefaultProps = async (
     builtDocumentCode,
     fakeContext,
     documentPath,
-    sourceMapToDocument
+    sourceMapToDocument,
   );
 
   if ("error" in executionResult) {
@@ -126,14 +138,16 @@ const getDocumentIdAndDefaultProps = async (
   const documentId = executionResult.DocumentComponent.documentId;
   if (!documentId) {
     logger.error(
-      "No document ID found. Please ensure documentId is set as a property on the default export."
+      "No document ID found. Please ensure documentId is set as a property on the default export.",
     );
     return { documentId: null, defaultProps: {} };
   }
 
   const defaultProps = executionResult.DocumentComponent.PreviewProps || {};
   logger.debug(`Extracted document ID: ${documentId}`);
-  logger.debug(`Extracted default props: ${JSON.stringify(defaultProps, null, 2)}`);
+  logger.debug(
+    `Extracted default props: ${JSON.stringify(defaultProps, null, 2)}`,
+  );
   return { documentId, defaultProps: defaultProps };
 };
 
@@ -151,9 +165,14 @@ const zipDocumentFiles = async (documentBuildDir: string) => {
   }
 
   // Add static.zip if it exists
-  const staticZipPath = path.join(BUILD_DIR, 'static.zip');
-  if (await fs.access(staticZipPath).then(() => true).catch(() => false)) {
-    logger.debug('Adding static.zip to bundle');
+  const staticZipPath = path.join(BUILD_DIR, "static.zip");
+  if (
+    await fs
+      .access(staticZipPath)
+      .then(() => true)
+      .catch(() => false)
+  ) {
+    logger.debug("Adding static.zip to bundle");
     zip.addLocalFile(staticZipPath);
   }
 

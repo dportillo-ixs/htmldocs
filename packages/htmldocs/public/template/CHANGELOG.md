@@ -4,14 +4,14 @@
 
 ### Patch Changes
 
-- Updated dependencies [891d160]
+- Updated dependencies [39c4eaa]
   - htmldocs-v2@0.4.10
 
 ## 0.4.9
 
 ### Patch Changes
 
-- Updated dependencies [5a0d96d]
+- Updated dependencies [53998ed]
   - htmldocs-v2@0.4.9
 
 ## 0.4.8
